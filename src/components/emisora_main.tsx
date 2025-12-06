@@ -1,9 +1,8 @@
-import logo from "/Icecast_logo.png"
 export const Emisora_main = () => {
     return (
         <>
             <div className="flex flex-col items-center w-1/1 h-3/10">
-                <img src={logo} className="h-1/1 w-1/10" />
+                <img src="/Icecast_logo.png" className="h-1/1 w-1/10" />
                 <p>Radio powered by Icecast</p>
                 <>▶︎ ▐▐</>
             </div>
