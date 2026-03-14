@@ -38,13 +38,13 @@ export const AudioRecorder = ({ onRecordingComplete }:props) => {
   };
 
   return (
-    <div className="flex gap-4 items-center">
+    <div className="flex gap-4 items-center mt-2 w-1/1 justify-center">
       {!recording ? (
-        <button onClick={startRecording} className="hover:cursor-pointer hover:border-2">
+        <button onClick={startRecording} className="bg-fuchsia-200 hover:cursor-pointer border h-8 w-1/2 rounded hover:bg-fuchsia-300">
           🎙️ Empezar
         </button>
       ) : (
-        <button onClick={stopRecording}>
+        <button onClick={stopRecording} className="bg-fuchsia-200 hover:cursor-pointer border h-8 w-1/2 rounded hover:bg-fuchsia-300">
           ⏹️ Detener
         </button>
       )}

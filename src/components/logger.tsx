@@ -12,7 +12,7 @@ export const Logger = () => {
     }
     return (
         //Main del html - Flexbox, justificado al centro, paddin arriba y abajo de 1 rem (16px)
-        <main className="flex justify-center pt-4 pb-4 h-4/5 bg-amber-100">
+        <main className="flex justify-center pt-4 pb-4 h-4/5 bg-blue-50">
             {register ? (
                 /* Llama el registro del usuario */
                 <Register />

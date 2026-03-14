@@ -1,31 +1,71 @@
 import { useState } from "react";
-import logo from "/logo.svg"
+import { AudioRecorder } from "./recorder";
 const API = import.meta.env.VITE_APP_API;
 
 type props = {
-  user: string;
+  user: string,
   mail: string
 };
 
-export function Perfil(props:props) {
-  const [url, setUrl] = useState("");
+export function Perfil(props: props) {
+  const [titulo, setTitulo] = useState("");
+  const [titulo_song, setTitulo_song] = useState("");
+  const [autor, setAutor] = useState("");
   //const [userData, setUserData] = useState(null);
 
-  const agregar = async (link:string) => {
-    try {
-      const res = await fetch(`${API}/api/descargar`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ url: link })
-      });
-      const data = await res.json();
-      console.log(data);
-    } catch (error) {
-      console.error("Error:", error);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [blob, setBlob] = useState<Blob | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleRecordingComplete = async (blob: Blob, url: string) => {
+    setAudioUrl(url);
+    setBlob(blob)
+  };
+
+  const handlePlay = () => {
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.play();
     }
   };
+
+  const upload = async (bandera: boolean) => {
+    if (bandera) {
+      if (!blob) return;
+      try {
+        const formData = new FormData();
+        formData.append("audio", blob, titulo + "por" + props.user + ".mp3");
+        formData.append("data", JSON.stringify({ titulo: titulo, tipo: "cuña", id: "20232678012", autor: props.user }));
+
+        const res = await fetch(`${API}/api/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+        console.log("Archivo guardado en:", data.url);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } else {
+      if (!file) return;
+      try {
+        const formData = new FormData();
+        formData.append("audio", file, titulo_song + "por" + autor + ".mp3");
+        formData.append("data", JSON.stringify({ titulo: titulo_song, tipo: "cancion", id: "20232678012", autor: autor }));
+        //console.log(formData)
+        const res = await fetch(`${API}/api/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+        console.log("Archivo guardado en:", data.url);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  }
 
   /*useEffect(() => {
     const user = async () => {
@@ -48,27 +88,62 @@ export function Perfil(props:props) {
 
 
   return ([
-    <div className="flex w-1/1 h-1/2 border-2">
-      <div className="w-1/3">
-        <img src={logo} className="w-1/1"></img>
-      </div>
+    <div className="flex w-1/1">
 
       {props ?
-        <div className="flex flex-col">
-          <span>{props.user}</span>
-          <span>{props.mail}</span>
+        <div className="w-1/1 flex justify-around flex-wrap">
+          <span className="">{props.user}</span>
+          <span className="">{props.mail}</span>
         </div>
         :
-        <div className="flex flex-col">
+        <div className="w-1/1 flex justify-around flex-wrap">
           <span>Name</span>
           <span>E-mail</span>
         </div>
       }
 
     </div>,
-    <div className="flex flex-col w-1/1 h-1/2 border-2">
-      <input className='border-2 bg-fuchsia-300 w-1/1 h-1/2' value={url} onChange={(e) => setUrl(e.target.value)} />
-      <button className='border-2 bg-amber-300 w-1/1 h-1/2 cursor-pointer' onClick={() => agregar(url)}>download</button>
+    <div className="w-1/1 flex items-center flex-col mt-8">
+      <span>Crea tu anuncio y compartelo</span>
+      <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+      {audioUrl && (
+        <>
+          <button
+            onClick={handlePlay}
+            className="bg-blue-500 hover:cursor-pointer border h-10 w-1/2 mt-4 text-white border-black rounded"
+
+          >
+            🔊 Escuchar grabación
+          </button>
+
+          <form className="flex flex-col w-1/1 items-center mt-4">
+            <label htmlFor="titulo">Agrega un titulo</label>
+            <input type="text" id='titulo' value={titulo} required onChange={(e) => setTitulo(e.target.value)} className='bg-fuchsia-300 w-1/2 pb-1 text-center' />
+            <button
+              onClick={(e) => { e.preventDefault(); upload(true) }}
+              className="bg-blue-500 hover:cursor-pointer border h-10 w-1/2 mt-4 text-white border-black rounded"
+            >
+              🔊 Subir grabacion
+            </button>
+          </form>
+        </>
+      )}
+    </div>,
+    <div>
+      {/*<input className='border-2 bg-fuchsia-300 w-1/1 h-1/2' value={url} onChange={(e) => setUrl(e.target.value)} />*/}
+      <form className="flex flex-col w-1/1 mt-8 items-center">
+        <label htmlFor="file">¿Quieres que tu cancion o anuncio sea escuchado?</label>
+        <input className='bg-fuchsia-200 hover:cursor-pointer border h-8 w-1/2 rounded hover:bg-fuchsia-300 mb-2' id="file" type="file" required accept="audio/mp3,audio/webm,audio/mpeg" onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            setFile(e.target.files[0]);
+          }
+        }} />
+        <label htmlFor="titulo_song">Agrega el titulo de la cancion</label>
+        <input type="text" id='titulo_song' value={titulo_song} required onChange={(e) => setTitulo_song(e.target.value)} className='bg-fuchsia-300 w-1/2 pb-1 mb-2 text-center' />
+        <label htmlFor="titulo">Agrega al autor</label>
+        <input type="text" id='autor' value={autor} required onChange={(e) => setAutor(e.target.value)} className='bg-fuchsia-300 w-1/2 pb-1 mb-2 text-center' />
+        <button className='bg-blue-500 hover:cursor-pointer border h-10 w-1/2 mt-4 text-white border-black rounded' onClick={() => upload(false)}>Compartir</button>
+      </form>
     </div>
   ]);
 }

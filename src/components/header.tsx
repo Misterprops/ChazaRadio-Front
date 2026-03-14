@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import logo from "/logo.svg"
+import logo from "/logo.png"
+import ud_logo from "/ud_logo.png"
 
 type props = {
   nav: [string, string][]; // [ruta, texto]
@@ -21,6 +22,7 @@ export const Header = ({ nav }: props) => {
             </Link>
           ))}
       </nav>
+      <img src={ud_logo} className="w-1/20"/>
     </header>
   );
 }
