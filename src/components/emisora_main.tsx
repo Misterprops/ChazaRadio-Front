@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_APP_API;
-
+const STREAM = import.meta.env.VITE_STREAM_URL;
+let cantidad = 4;
 type poadcast = {
     nombre: string,
     autores: string,
-    capitulo: [{ url: string }]
+    capitulo: [{ url: string }],
+    cantidad: number
 }
 export const Emisora_main = () => {
     const [serie, setSerie] = useState("")
     const [autores, setAutores] = useState("")
     const [url, setUrl] = useState("")
-    const [poadcasts, setPoadcasts] = useState<poadcast[] | null>([])
-    const [cantidad, setCantidad] = useState(4)
+    const [poadcasts, setPoadcasts] = useState<poadcast[]>([])
 
     useEffect(() => {
         const series = async () => {
@@ -21,9 +22,9 @@ export const Emisora_main = () => {
                     method: "POST"
                 });
 
-                const data = await res.json();
+                const data: Omit<poadcast, "cantidad">[] = await res.json();
+                setPoadcasts(data.map(p => ({ ...p, cantidad: cantidad })));
                 console.log("Posts", data);
-                setPoadcasts(data);
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -54,11 +55,28 @@ export const Emisora_main = () => {
         }
     }
 
+    const setCapitulos = (index: number) => {
+        setPoadcasts(prev =>
+            prev.map((p, i) => {
+                if (i === index) {
+                    const mostrarTodos = p.cantidad === 4; // si estaba mostrando 4 → mostrar todos
+                    return {
+                        ...p,
+                        cantidad: mostrarTodos ? p.capitulo.length : 4
+                    };
+                }
+                return p;
+            })
+        );
+    };
+
     return (
         <div className="flex flex-col bg-blue-50">
             <div className="flex flex-col items-center w-1/1">
-                <img src="/Icecast_logo.png" className="h-1/1 w-1/10" />
-                <span>Radio powered by Icecast</span>
+                <audio controls>
+                    <source src={STREAM} type="audio/mpeg" />
+                </audio>
+                <span>Radio powered by Icecast and liquidSoap</span>
                 <>▶︎ ▐▐</>
             </div>
             <form className="flex flex-col items-center mt-8 mb-8" onSubmit={(e) => {
@@ -89,13 +107,15 @@ export const Emisora_main = () => {
                                 <span>Por: {post.autores}</span>
                             </div>
                             <div className="w-1/1 grid grid-cols-4 ">
-                                {post.capitulo?.slice(0, cantidad).map((capitulo, idx) => (
-                                    <div key={idx}>
-                                        <iframe src={capitulo.url} className="pl-2 pr-2 w-1/1 mb-2 mt-2"/>
+                                {post.capitulo?.slice(0, post.cantidad).map((capitulo, cidx) => (
+                                    <div key={cidx}>
+                                        <iframe src={capitulo.url} className="pl-2 pr-2 w-1/1 mb-2 mt-2" />
                                     </div>
                                 ))}
                             </div>
-                            {post.capitulo.length > 4 ? <button className="bg-blue-500 hover:cursor-pointer border h-10 w-1/1 text-white border-black rounded" onClick={() => setCantidad(post.capitulo.length)}>Ver mas</button> : null}
+                            {post.capitulo.length > cantidad && (
+                                <button className="bg-blue-500 hover:cursor-pointer border h-10 w-1/1 text-white border-black rounded" onClick={() => (setCapitulos(idx))}>{post.cantidad === cantidad ? "Ver más" : "Ver menos"}</button>
+                            )}
                         </li>
                     ))}
                 </ul>

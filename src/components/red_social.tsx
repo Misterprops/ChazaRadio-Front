@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const API = import.meta.env.VITE_APP_API;
 
@@ -10,32 +10,67 @@ type props = {
 type post = {
     mensaje: string,
     link: string,
-    nombre: string
+    nombre: string,
+    tipo: string
 }
 
 export function Red_social(props: props) {
-
+    const didFetch = useRef(false);
     const [mensaje, setMensaje] = useState("");
     const [link, setLink] = useState("");
-    const [publicacion, setPublicion] = useState<post[] | null>([])
+    const [publicacion, setPublicion] = useState<post[]>([])
     const [frame, setFrame] = useState(false)
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const observer = useRef<IntersectionObserver | null>(null);
+
+    const fetchPosts = async () => {
+        if (loading || !hasMore) return;
+
+        setLoading(true);
+
+        const res = await fetch(`${API}/api/get_posts`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                page: page
+            })
+        });
+        const data: post[] = await res.json();
+
+        if (data.length === 0) {
+            setHasMore(false);
+        } else {
+            setPublicion(prev => [...prev, ...data]); // 🔥 concatena
+            setPage(prev => prev + 1);
+        }
+
+        setLoading(false);
+    };
+
+    const lastPostRef = useCallback((node: HTMLLIElement | null) => {
+        if (loading) return;
+
+        if (observer.current) observer.current.disconnect();
+
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                fetchPosts();
+            }
+        });
+
+        if (node) observer.current.observe(node);
+    }, [loading, hasMore]);
 
     useEffect(() => {
-        const publicaciones = async () => {
-            try {
-                const res = await fetch(`${API}/api/get_posts`, {
-                    method: "POST"
-                });
+        if (didFetch.current) return;
+        didFetch.current = true;
 
-                const data = await res.json();
-                console.log("Posts", data);
-                setPublicion(data);
-            } catch (error) {
-                console.error("Error:", error);
-            }
-        }
-        publicaciones();
-    }, [])
+        fetchPosts();
+    }, []);
 
     const publicar = async () => {
         try {
@@ -99,15 +134,29 @@ export function Red_social(props: props) {
                         <iframe className="size-full col-span-2" src="https://www.youtube.com/embed/TW9d8vYrVFQ"></iframe>
                     </div>
                 </li>
-                {publicacion?.map((post, idx) => (
-                    <li key={idx}>
-                        <div className="grid grid-cols-2">
-                            <span>{post.mensaje}</span>
-                            <span className="text-right">By: {post.nombre}</span>
-                            <iframe className="size-full col-span-2" src={post.link}></iframe>
-                        </div>
-                    </li>
-                ))}
+                {publicacion.map((post, idx) => {
+                    if (idx === publicacion.length - 1) {
+                        return (
+                            <li ref={lastPostRef} key={idx} className="mt-4">
+                                <div className="grid grid-cols-2">
+                                    <span>{post.mensaje}</span>
+                                    <span className="text-right">By: {post.nombre}</span>
+                                    {post.tipo === "vacio" ? <></> : (post.tipo === "video" ? <div className="col-span-2 w-full aspect-5/2"> <iframe className="size-full col-span-2" src={post.link} /></div> : <div className="size-full col-span-2 flex justify-center h-1/2"><img src={post.link} className="w-2/3 h-fit aspect-3/2" /></div>)}
+                                </div>
+                            </li>
+                        );
+                    } else {
+                        return (
+                            <li key={idx} className="mt-4">
+                                <div className="grid grid-cols-2">
+                                    <span>{post.mensaje}</span>
+                                    <span className="text-right">By: {post.nombre}</span>
+                                    {post.tipo === "vacio" ? <></> : (post.tipo === "video" ? <div className="col-span-2 w-full aspect-5/2"> <iframe className="size-full col-span-2" src={post.link} /></div> : <div className="size-full col-span-2 flex justify-center h-1/2"><img src={post.link} className="w-2/3 h-fit aspect-3/2" /></div>)}
+                                </div>
+                            </li>
+                        );
+                    }
+                })}
             </ul>
 
         </div>

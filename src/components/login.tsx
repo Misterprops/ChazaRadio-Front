@@ -29,6 +29,7 @@ export const Log = () => {
                     alert(res.status)
                 }
             } else {
+                localStorage.setItem("token", data)
                 navigate("/")
             }
         } catch (error) {
@@ -58,7 +59,7 @@ export const Log = () => {
             </button>
 
             <button className='h-10 mt-2'>
-                <Link to={"/"} className='text-fuchsia-800'>
+                <Link to={"/Emisora"} className='text-fuchsia-800'>
                     Entrar como invitado
                 </Link>
             </button>

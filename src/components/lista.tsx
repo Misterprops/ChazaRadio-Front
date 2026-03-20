@@ -2,15 +2,16 @@ import { useRef, useEffect, useState } from "react";
 const API = import.meta.env.VITE_APP_API;
 
 type audio = {
-    url: string,
-    titulo: string,
-    likes: string,
-    autor: string
+  url: string,
+  titulo: string,
+  likes: string,
+  autor: string
 }
 
 export function Lista() {
   const audio = useRef<HTMLAudioElement | null>(null);
   const [audios, setAudios] = useState<audio[]>([]);
+  const [likes, setLikes] = useState([]);
   //const [indice, setIndice] = useState(null);
   const [playingUrl, setPlayingUrl] = useState<string | null>(null);
 
@@ -22,14 +23,45 @@ export function Lista() {
         });
 
         const data = await res.json();
-        console.log("Audios", data);
         setAudios(data);
       } catch (error) {
         console.error("Error:", error);
       }
     }
+    const getLikeList = async () => {
+      const res = await fetch(`${API}/api/get_likeList`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+      const data = await res.json();
+      setLikes(data)
+    }
     getAudios();
+    getLikeList();
   }, [])
+
+  const likeControl = async (audio: audio) => {
+    const res = await fetch(`${API}/api/like_control`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({
+        url: audio.url
+      })
+    });
+    const data = await res.json();
+    setLikes(data)
+    likeFind(audio.url) ? audio.likes = (parseInt(audio.likes) - 1 + "") : audio.likes = (parseInt(audio.likes) + 1 + "")
+  }
+
+  const likeFind = (url: String) => {
+    return likes.find(link => link === url);
+  }
 
   const handlePlay = (url: audio["url"], index: number) => {
     if (!audio.current || !audio.current.src.includes(encodeURI(url))) {
@@ -44,7 +76,7 @@ export function Lista() {
         if ((index + 1) < audios.length) {
           handlePlay(audios[(index + 1)]["url"], (index + 1));
         } else {
-          setPlayingUrl(null); // fin de la lista
+          handlePlay(audios[0]["url"], (0)); // fin de la lista
         }
       };
       audio.current.play();
@@ -77,8 +109,7 @@ export function Lista() {
             <div className="grid grid-cols-2 w-1/1">
               <span className="col-span-2 text-center">{audio.titulo}</span>
               <span className="col-span-2 text-end">Por: {audio.autor}</span>
-              <button className="bg-green-400"><span>{audio.likes}</span>
-                Likes</button>
+              <button className={likeFind(audio.url) ? "bg-red-400" : "bg-green-400"} onClick={() => likeControl(audio)}>{audio.likes + " Likes"} </button>
               <button
                 onClick={() => handlePlay(audio.url, idx)}
                 className="py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
