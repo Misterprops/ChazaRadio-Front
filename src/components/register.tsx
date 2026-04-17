@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { Input } from '../elements/input';
+import { Button } from '../elements/button';
 const API = import.meta.env.VITE_APP_API;
 
 type props = {
@@ -73,14 +75,14 @@ export const Register = () => {
                 registrar(data)
             }}>
                 <label htmlFor="user">Usuario</label>
-                <input type="text" id='user' value={user} onChange={(e) => setUser(e.target.value)} required className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
+                <Input type="text" id='user' value={user} change={setUser} required/>
                 <label htmlFor="password">Contraseña</label>
-                <input type="text" id='password' value={password} onChange={(e) => setpassword(e.target.value)} required className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
+                <Input type="password" id='password' value={password} change={setpassword} required/>
                 <label htmlFor="mail">Correo</label>
-                <input type="text" id='mail' value={mail} onChange={(e) => setmail(e.target.value)} required className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
+                <Input type="email" id='mail' value={mail} change={setmail} required/>
                 <label htmlFor="id">Codigo Universitario</label>
-                <input type="text" id='id' value={id} onChange={(e) => setId(e.target.value)} required className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
-                <button type='submit' className="bg-blue-500 hover:cursor-pointer border h-10 w-1/6 mb-4 text-white border-black rounded">Registrar</button>
+                <Input type="text" id='id' value={id} change={setId} required/>
+                <Button>Registrar</Button>
             </form>
 
             <form className='flex flex-col items-center w-1/1' onSubmit={async (e) => {
@@ -89,15 +91,15 @@ export const Register = () => {
                 await validar(data) ? navigate("/login") : setCode("");
             }}>
                 <label htmlFor="code">Codigo</label>
-                <input type="text" id='code' value={code} onChange={(e) => setCode(e.target.value)} required className="bg-fuchsia-300 w-1/6 h-8 pb-1" />
-                <button type='submit' className="bg-blue-500 hover:cursor-pointer border h-10 w-1/6 mt-4 text-white border-black rounded">Verificar</button>
+                <Input type="text" id='code' value={code} change={setCode} required/>
+                <Button>Verificar</Button>
             </form>
 
-            <button className='h-10 mt-2'>
-                <Link to={"/"} className='text-fuchsia-800'>
+            <Button>
+                <Link to={"/Emisora"} className='text-fuchsia-800 bg-white h-1/1 w-1/1'>
                     Entrar como invitado
                 </Link>
-            </button>
+            </Button>
         </div>
     );
 }

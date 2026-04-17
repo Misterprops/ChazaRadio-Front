@@ -65,27 +65,7 @@ export function Perfil(props: props) {
         console.error("Error:", error);
       }
     }
-  }
-
-  /*useEffect(() => {
-    const user = async () => {
-      try {
-        const res = await fetch('http://localhost:3000/api/user_data', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ user: 'mister' })
-        });
-        setUserData(await res.json());
-        console.log(data);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    }
-    user()
-  }, []);*/
-
+  };
 
   return ([
     <div className="flex w-1/1">

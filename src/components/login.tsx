@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { useNavigate } from "react-router";
+import { Button } from '../elements/button';
+import { Input } from '../elements/input';
 const API = import.meta.env.VITE_APP_API;
 
 export const Log = () => {
@@ -46,23 +48,23 @@ export const Log = () => {
                 login()
             }}>
                 <label htmlFor="user">Usuario</label>
-                <input type="text" id='user' value={user} required onChange={(e) => setUser(e.target.value)} className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
+                <Input type="text" id='user' required value={user} change={setUser} />
                 <label htmlFor="password">Contraseña</label>
-                <input type="password" id='password' value={password} required onChange={(e) => setPassword(e.target.value)} className='bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4' />
-                <button type='submit' className="bg-blue-500 hover:cursor-pointer border h-10 w-1/6 mb-2 text-white border-black rounded">Ingresar</button>
+                <Input type="password" id='password' required value={password} change={setPassword} />
+                <Button>Ingresar</Button>
             </form>
 
-            <button className="bg-blue-500 hover:cursor-pointer border h-10 w-1/6 mt-4 text-white border-black rounded">
-                <Link to='../Login' state={{ tipo: true }}>
+            <Button>
+                <Link to='../Login' state={{ tipo: true }} className='h-1/1 w-1/1 flex items-center justify-center'>
                     Registrarse
                 </Link>
-            </button>
+            </Button>
 
-            <button className='h-10 mt-2'>
-                <Link to={"/Emisora"} className='text-fuchsia-800'>
+            <Button>
+                <Link to={"/Emisora"} className='text-fuchsia-800 bg-white h-1/1 w-1/1'>
                     Entrar como invitado
                 </Link>
-            </button>
+            </Button>
         </div>
     );
 }
