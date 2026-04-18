@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "../elements/button";
 
 const API = import.meta.env.VITE_APP_API;
 
@@ -109,22 +110,30 @@ export function Red_social(props: props) {
             }
 
             <div className="grid w-9/10">
-                <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" rows={5} placeholder="Escribe tu mensaje" value={mensaje} onChange={(e) => { setMensaje(e.target.value) }} />
-                <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" rows={2} placeholder="Comparte tu contenido" value={link} onChange={(e) => { setLink(e.target.value) }} />
-                <div className="flex justify-center mt-2">
-                    {(link && frame) ? (
-                        <div className="flex flex-col items-center w-1/1">
-                            <button className="bg-blue-500 hover:cursor-pointer border h-10 w-1/1 mb-2 text-white border-black rounded" onClick={() => setFrame(false)}>Imagen</button>
-                            <iframe className="w-1/1" src={link} />
-                        </div>
-                    ) : (link && !frame) ? (
-                        <div className="flex flex-col items-center">
-                            <button className="bg-blue-500 hover:cursor-pointer border h-10 w-1/1 mb-2 text-white border-black rounded" onClick={() => setFrame(true)}>Video</button>
-                            <img src={link} className="w-1/2" />
-                        </div>
-                    ) : <img />}
-                </div>
-                <button className="bg-blue-500 hover:cursor-pointer border h-10 w-1/1 mt-4 text-white border-black rounded" onClick={() => publicar()}>Publicar</button>
+                <form className="flex flex-col w-1/1 items-center" onSubmit={(e) => { e.preventDefault(); setFrame(!frame) }}>
+                    <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" rows={5} placeholder="Escribe tu mensaje" value={mensaje} onChange={(e) => { setMensaje(e.target.value) }} />
+                    <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" rows={2} placeholder="Comparte tu contenido" value={link} onChange={(e) => { setLink(e.target.value) }} />
+                    <div className="flex justify-center mt-2 w-1/1">
+                        {(link && frame) ? (
+                            <div className="flex flex-col items-center w-1/1">
+                                <Button>
+                                    Imagen
+                                </Button>
+                                <iframe className="w-1/1" src={link} />
+                            </div>
+                        ) : (link && !frame) ? (
+                            <div className="flex flex-col items-center w-1/1">
+                                <Button>
+                                    Video
+                                </Button>
+                                <img src={link} className="w-1/2" />
+                            </div>
+                        ) : <img />}
+                    </div>
+                </form>
+                <form className="flex flex-col w-1/1 items-center" onSubmit={(e) => { e.preventDefault(); publicar() }}>
+                    <Button>Publicar</Button>
+                </form>
             </div>
             <ul className="flex flex-col w-9/10">
                 <li>

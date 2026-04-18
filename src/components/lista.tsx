@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { Button } from "../elements/button";
 const API = import.meta.env.VITE_APP_API;
 
 type audio = {
@@ -109,13 +110,12 @@ export function Lista() {
             <div className="grid grid-cols-2 w-1/1">
               <span className="col-span-2 text-center">{audio.titulo}</span>
               <span className="col-span-2 text-end">Por: {audio.autor}</span>
-              <button className={likeFind(audio.url) ? "bg-red-400" : "bg-green-400"} onClick={() => likeControl(audio)}>{audio.likes + " Likes"} </button>
-              <button
-                onClick={() => handlePlay(audio.url, idx)}
-                className="py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                {playingUrl === audio.url ? '⏸️ Pausar' : '▶️ Reproducir'}
-              </button>
+              <button className={likeFind(audio.url) ? "bg-red-400 mb-1 mt-1" : "bg-green-400 mb-1 mt-1"} onClick={() => likeControl(audio)}>{audio.likes + " Likes"} </button>
+              <form onSubmit={(e) => {e.preventDefault(); handlePlay(audio.url, idx)}}>
+                <Button>
+                  {playingUrl === audio.url ? '⏸️ Pausar' : '▶️ Reproducir'}
+                </Button>
+              </form>
             </div>
           </li>
         ))}

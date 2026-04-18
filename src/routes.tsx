@@ -3,6 +3,7 @@ import App from "./App";
 import Home from "./routes/home";
 import Emisora from "./routes/emisora";
 import Access from "./routes/access";
+import { Register } from "./components/register";
 
 export const router = createBrowserRouter([
   {
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "login", element: <Access /> },
       { path: "emisora", element: <Emisora /> },
+      { path: "registro", element: <Register /> }
     ],
   },
 ]);

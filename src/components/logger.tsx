@@ -1,4 +1,4 @@
-import { Log } from "./login";
+/*import { Log } from "./login";
 import { Register } from "./register";
 import { useLocation } from 'react-router';
 
@@ -15,15 +15,15 @@ export const Logger = () => {
         <main className="flex justify-center pt-4 pb-4 h-4/5 bg-blue-50">
             {register ? (
                 /* Llama el registro del usuario */
-                <Register />
+                /*<Register />
             )
             :
             (
                 /* Llama el login del usuario */
-                <Log />
+                /*<Log />
             )}
         </main>
 
     );
 
-}
+}*/

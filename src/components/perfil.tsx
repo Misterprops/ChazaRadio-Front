@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { AudioRecorder } from "./recorder";
+import { Button } from "../elements/button";
+import { Input } from "../elements/input";
 const API = import.meta.env.VITE_APP_API;
 
 type props = {
@@ -88,42 +90,37 @@ export function Perfil(props: props) {
       <AudioRecorder onRecordingComplete={handleRecordingComplete} />
       {audioUrl && (
         <>
-          <button
-            onClick={handlePlay}
-            className="bg-blue-500 hover:cursor-pointer border h-10 w-1/2 mt-4 text-white border-black rounded"
+          <form onSubmit={handlePlay}>
+            <Button>
+              🔊 Escuchar grabación
+            </Button>
+          </form>
 
-          >
-            🔊 Escuchar grabación
-          </button>
-
-          <form className="flex flex-col w-1/1 items-center mt-4">
+          <form onSubmit={(e) => { e.preventDefault(); upload(true) }} className="flex flex-col w-1/1 items-center mt-4">
             <label htmlFor="titulo">Agrega un titulo</label>
-            <input type="text" id='titulo' value={titulo} required onChange={(e) => setTitulo(e.target.value)} className='bg-fuchsia-300 w-1/2 pb-1 text-center' />
-            <button
-              onClick={(e) => { e.preventDefault(); upload(true) }}
-              className="bg-blue-500 hover:cursor-pointer border h-10 w-1/2 mt-4 text-white border-black rounded"
-            >
+            <Input type="text" id='titulo' value={titulo} required change={setTitulo} />
+            <Button>
               🔊 Subir grabacion
-            </button>
+            </Button>
           </form>
         </>
       )}
     </div>,
-    <div>
+    <div className="w-1/1 flex items-center flex-col">
       {/*<input className='border-2 bg-fuchsia-300 w-1/1 h-1/2' value={url} onChange={(e) => setUrl(e.target.value)} />*/}
-      <form className="flex flex-col w-1/1 mt-8 items-center">
+      <form className="flex flex-col w-1/2 mt-8 items-center" onSubmit={(e) => { e.preventDefault(); upload(false) }}>
         <label htmlFor="file">¿Quieres que tu cancion o anuncio sea escuchado?</label>
-        <input className='bg-fuchsia-200 hover:cursor-pointer border h-8 w-1/2 rounded hover:bg-fuchsia-300 mb-2' id="file" type="file" required accept="audio/mp3,audio/webm,audio/mpeg" onChange={(e) => {
+        <input className='bg-fuchsia-200 hover:cursor-pointer border h-8 w-1/1 rounded hover:bg-fuchsia-300 mb-2' id="file" type="file" required accept="audio/mp3,audio/webm,audio/mpeg" onChange={(e) => {
           if (e.target.files && e.target.files.length > 0) {
             setFile(e.target.files[0]);
           }
         }} />
         <label htmlFor="titulo_song">Agrega el titulo de la cancion</label>
-        <input type="text" id='titulo_song' value={titulo_song} required onChange={(e) => setTitulo_song(e.target.value)} className='bg-fuchsia-300 w-1/2 pb-1 mb-2 text-center' />
+        <Input type="text" id='titulo_song' value={titulo_song} required change={setTitulo_song} />
         <label htmlFor="titulo">Agrega al autor</label>
-        <input type="text" id='autor' value={autor} required onChange={(e) => setAutor(e.target.value)} className='bg-fuchsia-300 w-1/2 pb-1 mb-2 text-center' />
-        <button className='bg-blue-500 hover:cursor-pointer border h-10 w-1/2 mt-4 text-white border-black rounded' onClick={() => upload(false)}>Compartir</button>
+        <Input type="text" id='autor' value={autor} required change={setAutor} />
+        <Button>Compartir</Button>
       </form>
-    </div>
+    </div >
   ]);
 }

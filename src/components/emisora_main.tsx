@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Input } from "../elements/input";
+import { Button } from "../elements/button";
 
 const API = import.meta.env.VITE_APP_API;
 const STREAM = import.meta.env.VITE_STREAM_URL;
@@ -71,27 +73,29 @@ export const Emisora_main = () => {
     };
 
     return (
-        <div className="flex flex-col bg-blue-50">
-            <div className="flex flex-col items-center w-1/1">
+        <div className="flex flex-col bg-blue-50 items-center">
+            <div className="flex flex-col items-center w-1/6">
                 <audio controls>
                     <source src={STREAM} type="audio/mpeg" />
                 </audio>
                 <span>Radio powered by Icecast and liquidSoap</span>
                 <>▶︎ ▐▐</>
             </div>
-            <form className="flex flex-col items-center mt-8 mb-8" onSubmit={(e) => {
+            {localStorage.getItem("token") &&(
+            <form className="flex flex-col items-center mt-8 mb-8 w-1/6" onSubmit={(e) => {
                 e.preventDefault()
                 publicar()
             }}>
                 <span className="mb-2">Publica tu nuevo poadcast o un nuevo capitulo</span>
                 <label htmlFor="serie">Nombre de la serie</label>
-                <input id="serie" required value={serie} onChange={(e) => setSerie(e.target.value)} className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
+                <Input type="text" id="serie" required value={serie} change={setSerie} />
                 <label htmlFor="autores">Autores</label>
-                <input id="autores" required value={autores} onChange={(e) => setAutores(e.target.value)} className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
+                <Input type="text" id="autores" required value={autores} change={setAutores} />
                 <label htmlFor="url">Url del capitulo</label>
-                <input id="url" required value={url} onChange={(e) => setUrl(e.target.value)} className="bg-fuchsia-300 w-1/6 h-8 pb-1 mb-4" />
-                <button type="submit" className="bg-blue-500 hover:cursor-pointer border h-10 w-1/6 text-white border-black rounded">Publicar</button>
+                <Input type="text" id="url" required value={url} change={setUrl} />
+                <Button>Publicar</Button>
             </form>
+            )}
             <div className="flex flex-col w-1/1">
                 <span>Visita tambien nuestros podcasts</span>
                 <div className="flex justify-around">
@@ -114,7 +118,9 @@ export const Emisora_main = () => {
                                 ))}
                             </div>
                             {post.capitulo.length > cantidad && (
-                                <button className="bg-blue-500 hover:cursor-pointer border h-10 w-1/1 text-white border-black rounded" onClick={() => (setCapitulos(idx))}>{post.cantidad === cantidad ? "Ver más" : "Ver menos"}</button>
+                                <form onSubmit={(e) => { e.preventDefault(); setCapitulos(idx) }} className="flex justify-center w-1/1">
+                                    <Button>{post.cantidad === cantidad ? "Ver más" : "Ver menos"}</Button>
+                                </form>
                             )}
                         </li>
                     ))}
