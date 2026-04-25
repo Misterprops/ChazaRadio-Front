@@ -1,17 +1,25 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 type props = {
-  onRecordingComplete?:(blob: Blob, url: string) => void;
+  onRecordingComplete?: (blob: Blob, url: string) => void;
 };
 
-export const AudioRecorder = ({ onRecordingComplete }:props) => {
+export const AudioRecorder = ({ onRecordingComplete }: props) => {
   const [recording, setRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach(track => track.stop());
+    };
+  }, []);
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mediaRecorder = new MediaRecorder(stream);
+    streamRef.current = stream;
 
     mediaRecorder.ondataavailable = (event) => {
       audioChunksRef.current.push(event.data);
@@ -34,6 +42,7 @@ export const AudioRecorder = ({ onRecordingComplete }:props) => {
 
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
+    streamRef.current?.getTracks().forEach(track => track.stop());
     setRecording(false);
   };
 

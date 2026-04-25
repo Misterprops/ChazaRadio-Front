@@ -2,8 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import Home from "./routes/home";
 import Emisora from "./routes/emisora";
-import Access from "./routes/access";
-import { Register } from "./components/register";
+import LogAccess from "./routes/log_access";
+import RegAccess from "./routes/reg_access";
 
 export const router = createBrowserRouter([
   {
@@ -11,9 +11,9 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <Home /> },
-      { path: "login", element: <Access /> },
+      { path: "login", element: <LogAccess /> },
       { path: "emisora", element: <Emisora /> },
-      { path: "registro", element: <Register /> }
+      { path: "registro", element: <RegAccess /> }
     ],
   },
 ]);

@@ -3,7 +3,9 @@ import { Link } from 'react-router';
 import { useNavigate } from "react-router";
 import { Button } from '../elements/button';
 import { Input } from '../elements/input';
-const API = import.meta.env.VITE_APP_API;
+import { api_codigo, api_login, api_validar } from '../functions/api_calls';
+import { useAuth } from './authContext';
+
 
 export const Login = () => {
     const [user, setUser] = useState("");
@@ -11,21 +13,12 @@ export const Login = () => {
     const [valida, setValida] = useState("");
     const [validado, setValidado] = useState(true);
     const navigate = useNavigate();
+    const { logToken } = useAuth();
 
     const login = async () => {
         try {
-            const res = await fetch(`${API}/api/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: user,
-                    password: password
-                })
-            });
+            const res = await api_login(user, password)
             const data = await res.json();
-            console.log(data);
             if (!res.ok) {
                 if (res.status === 400) {
                     alert("Contraseña erronea");
@@ -35,7 +28,7 @@ export const Login = () => {
                     alert(res.status)
                 }
             } else {
-                localStorage.setItem("token", data)
+                logToken(data)
                 navigate("/")
             }
         } catch (error) {
@@ -43,25 +36,26 @@ export const Login = () => {
         }
     }
 
-    const validar = async (id: string, code: string) => {
+    const validar = async () => {
         try {
-            const res = await fetch(`${API}/api/verificar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: id,
-                    codigo: code
-                })
-            });
-            console.log(res.json())
+            const res = await api_validar(user, valida)
             if (res.ok) {
-                return true
+                login();
             } else {
-                return false
+                alert("Codigo erroneo")
             }
 
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    const codigo = async () => {
+        try {
+            const res = await api_codigo(user)
+            if (!res.ok) {
+                alert("Reenvio en cd")
+            }
         } catch (error) {
             console.error("Error:", error);
         }
@@ -91,12 +85,12 @@ export const Login = () => {
                     </Button>
                 ) : (
                     <>
-                        <form className='w-1/1' onSubmit={(e)=>{e.preventDefault(); validar(user, valida)} }>
+                        <form className='w-1/1' onSubmit={(e) => { e.preventDefault(); validar() }}>
                             <label htmlFor="validar">Codigo de verificacion</label>
                             <Input type="text" id='validar' required value={valida} change={setValida} />
                             <Button>Validar Usuario</Button>
                         </form>
-                        <form className='w-1/1' onSubmit={(e)=>{e.preventDefault()} }>
+                        <form className='w-1/1' onSubmit={(e) => { e.preventDefault(); codigo() }}>
                             <Button>Generar codigo</Button>
                         </form>
                     </>

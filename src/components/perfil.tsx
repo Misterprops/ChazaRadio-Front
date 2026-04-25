@@ -2,18 +2,14 @@ import { useState } from "react";
 import { AudioRecorder } from "./recorder";
 import { Button } from "../elements/button";
 import { Input } from "../elements/input";
-const API = import.meta.env.VITE_APP_API;
+import { useAuth } from "./authContext";
+import { api_uploadSounds } from "../functions/api_calls";
 
-type props = {
-  user: string,
-  mail: string
-};
-
-export function Perfil(props: props) {
+export function Perfil() {
   const [titulo, setTitulo] = useState("");
   const [titulo_song, setTitulo_song] = useState("");
   const [autor, setAutor] = useState("");
-  //const [userData, setUserData] = useState(null);
+  const { user, token } = useAuth();
 
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [blob, setBlob] = useState<Blob | null>(null);
@@ -33,38 +29,49 @@ export function Perfil(props: props) {
 
   const upload = async (bandera: boolean) => {
     if (bandera) {
-      if (!blob) return;
-      try {
-        const formData = new FormData();
-        formData.append("audio", blob, titulo + "por" + props.user + ".mp3");
-        formData.append("data", JSON.stringify({ titulo: titulo, tipo: "cuña", id: "20232678012", autor: props.user }));
+      if (blob) {
+        try {
+          if (user && token) {
+            const formData = new FormData();
+            formData.append("audio", blob, titulo + "por" + user.nombre + ".mp3");
+            formData.append("data", JSON.stringify({ titulo: titulo, tipo: "cuña", id: user.id, autor: user.nombre }));
 
-        const res = await fetch(`${API}/api/upload`, {
-          method: "POST",
-          body: formData
-        });
-
-        const data = await res.json();
-        console.log("Archivo guardado en:", data.url);
-      } catch (error) {
-        console.error("Error:", error);
+            const res = await api_uploadSounds(formData, token)
+            if (!res.ok) {
+              alert("Error de publicacion")
+            } else {
+              alert("Pista publicada")
+            }
+          } else {
+            alert("Problema de autenticacion")
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      } else {
+        alert("No se encontro la pista de audio")
       }
     } else {
-      if (!file) return;
-      try {
-        const formData = new FormData();
-        formData.append("audio", file, titulo_song + "por" + autor + ".mp3");
-        formData.append("data", JSON.stringify({ titulo: titulo_song, tipo: "cancion", id: "20232678012", autor: autor }));
-        //console.log(formData)
-        const res = await fetch(`${API}/api/upload`, {
-          method: "POST",
-          body: formData
-        });
+      if (file) {
+        try {
+          if (user && token) {
+            const formData = new FormData();
+            formData.append("audio", file, titulo_song + "por" + autor + ".mp3");
+            formData.append("data", JSON.stringify({ titulo: titulo_song, tipo: "cancion", id: user.id, autor: autor }));
 
-        const data = await res.json();
-        console.log("Archivo guardado en:", data.url);
-      } catch (error) {
-        console.error("Error:", error);
+            const res = await api_uploadSounds(formData, token)
+
+            if (!res.ok) {
+              alert("Error de publicacion")
+            } else {
+              alert("Pista publicada")
+            }
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      } else {
+        alert("No se encontro la pista de audio")
       }
     }
   };
@@ -72,10 +79,10 @@ export function Perfil(props: props) {
   return ([
     <div className="flex w-1/1">
 
-      {props ?
+      {user ?
         <div className="w-1/1 flex justify-around flex-wrap">
-          <span className="">{props.user}</span>
-          <span className="">{props.mail}</span>
+          <span className="">{user.nombre}</span>
+          <span className="">{user.correo}</span>
         </div>
         :
         <div className="w-1/1 flex justify-around flex-wrap">

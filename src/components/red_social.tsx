@@ -1,12 +1,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../elements/button";
+import { useAuth } from "./authContext";
 
 const API = import.meta.env.VITE_APP_API;
-
-type props = {
-    user: string;
-};
 
 type post = {
     mensaje: string,
@@ -15,7 +12,7 @@ type post = {
     tipo: string
 }
 
-export function Red_social(props: props) {
+export function Red_social() {
     const didFetch = useRef(false);
     const [mensaje, setMensaje] = useState("");
     const [link, setLink] = useState("");
@@ -25,6 +22,7 @@ export function Red_social(props: props) {
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const observer = useRef<IntersectionObserver | null>(null);
+    const { user } = useAuth();
 
     const fetchPosts = async () => {
         if (loading || !hasMore) return;
@@ -75,22 +73,24 @@ export function Red_social(props: props) {
 
     const publicar = async () => {
         try {
-            const res = await fetch(`${API}/api/upload_post`, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: "20232678012",
-                    mensaje: mensaje,
-                    link: link,
-                    nombre: props.user
-                })
-            });
+            if (user) {
+                const res = await fetch(`${API}/api/upload_post`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: user.id,
+                        mensaje: mensaje,
+                        link: link,
+                        nombre: user.nombre
+                    })
+                });
 
-            const data = await res.json();
-            console.log("Post", data);
-            window.location.reload()
+                const data = await res.json();
+                console.log("Post", data);
+                window.location.reload()
+            }
         } catch (error) {
             console.error("Error:", error);
         }
@@ -99,9 +99,9 @@ export function Red_social(props: props) {
     return (
         <div className="flex items-center w-1/1 h-1/1 border-r-2 border-l-2 flex-col">
 
-            {props ?
+            {user ?
                 <div className="flex w-9/10 justify-end">
-                    <span className="text-sm">{props.user}</span>
+                    <span className="text-sm">{user.nombre}</span>
                 </div>
                 :
                 <div className="flex w-9/10 justify-end">
@@ -136,13 +136,6 @@ export function Red_social(props: props) {
                 </form>
             </div>
             <ul className="flex flex-col w-9/10">
-                <li>
-                    <div className="grid grid-cols-2">
-                        <span>Mira esta cancion ❤️</span>
-                        <span className="text-right">By: Misterprops</span>
-                        <iframe className="size-full col-span-2" src="https://www.youtube.com/embed/TW9d8vYrVFQ"></iframe>
-                    </div>
-                </li>
                 {publicacion.map((post, idx) => {
                     if (idx === publicacion.length - 1) {
                         return (
