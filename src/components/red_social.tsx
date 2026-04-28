@@ -2,14 +2,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../elements/button";
 import { useAuth } from "./authContext";
-
-const API = import.meta.env.VITE_APP_API;
+import { api_borrarPost, api_getPosts, api_uploadPost } from "../functions/api_calls";
 
 type post = {
+    id: string,
     mensaje: string,
     link: string,
     nombre: string,
-    tipo: string
+    tipo: string,
+    enabled: boolean,
+    _id: string
 }
 
 export function Red_social() {
@@ -22,28 +24,21 @@ export function Red_social() {
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const observer = useRef<IntersectionObserver | null>(null);
-    const { user } = useAuth();
+    const { user, token, checkAuth } = useAuth();
 
     const fetchPosts = async () => {
         if (loading || !hasMore) return;
 
         setLoading(true);
 
-        const res = await fetch(`${API}/api/get_posts`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                page: page
-            })
-        });
-        const data: post[] = await res.json();
+        const res = await api_getPosts(page);
+        const data = await res.json();
+        const post: post[] = data.filter((post: post) => post.enabled);
 
         if (data.length === 0) {
             setHasMore(false);
         } else {
-            setPublicion(prev => [...prev, ...data]); // 🔥 concatena
+            setPublicion(prev => [...prev, ...post]); // 🔥 concatena
             setPage(prev => prev + 1);
         }
 
@@ -73,26 +68,30 @@ export function Red_social() {
 
     const publicar = async () => {
         try {
-            if (user) {
-                const res = await fetch(`${API}/api/upload_post`, {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: user.id,
-                        mensaje: mensaje,
-                        link: link,
-                        nombre: user.nombre
-                    })
-                });
-
-                const data = await res.json();
-                console.log("Post", data);
-                window.location.reload()
+            if (token && await checkAuth()) {
+                const res = await api_uploadPost(mensaje, link, token)
+                if (res.ok) {
+                    alert("Post publicado")
+                } else {
+                    alert("Error al publicar el post");
+                }
+            } else {
+                alert("Error de autenticacion")
             }
         } catch (error) {
             console.error("Error:", error);
+        }
+    }
+
+    const borrar = async (postId: string) => {
+        if (token && await checkAuth()) {
+            const res = await api_borrarPost(token, postId);
+            if (res.ok) {
+                alert("Post borrado");
+                setPublicion(prev => prev.filter(post => post._id !== postId));
+            } else {
+                alert("Error al borrar el post");
+            }
         }
     }
 
@@ -111,7 +110,7 @@ export function Red_social() {
 
             <div className="grid w-9/10">
                 <form className="flex flex-col w-1/1 items-center" onSubmit={(e) => { e.preventDefault(); setFrame(!frame) }}>
-                    <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" rows={5} placeholder="Escribe tu mensaje" value={mensaje} onChange={(e) => { setMensaje(e.target.value) }} />
+                    <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" required rows={5} placeholder="Escribe tu mensaje" value={mensaje} onChange={(e) => { setMensaje(e.target.value) }} />
                     <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" rows={2} placeholder="Comparte tu contenido" value={link} onChange={(e) => { setLink(e.target.value) }} />
                     <div className="flex justify-center mt-2 w-1/1">
                         {(link && frame) ? (
@@ -139,22 +138,24 @@ export function Red_social() {
                 {publicacion.map((post, idx) => {
                     if (idx === publicacion.length - 1) {
                         return (
-                            <li ref={lastPostRef} key={idx} className="mt-4">
-                                <div className="grid grid-cols-2">
+                            <li ref={lastPostRef} key={post._id} className="mt-4">
+                                <form className="grid grid-cols-2" onSubmit={(e) => { e.preventDefault(); borrar(post._id) }}>
                                     <span>{post.mensaje}</span>
                                     <span className="text-right">By: {post.nombre}</span>
                                     {post.tipo === "vacio" ? <></> : (post.tipo === "video" ? <div className="col-span-2 w-full aspect-5/2"> <iframe className="size-full col-span-2" src={post.link} /></div> : <div className="size-full col-span-2 flex justify-center h-1/2"><img src={post.link} className="w-2/3 h-fit aspect-3/2" /></div>)}
-                                </div>
+                                    {user && post.id === user.id ? <Button>Delete</Button> : <></>}
+                                </form>
                             </li>
                         );
                     } else {
                         return (
-                            <li key={idx} className="mt-4">
-                                <div className="grid grid-cols-2">
+                            <li key={post._id} className="mt-4">
+                                <form className="grid grid-cols-2" onSubmit={(e) => { e.preventDefault(); borrar(post._id) }}>
                                     <span>{post.mensaje}</span>
                                     <span className="text-right">By: {post.nombre}</span>
                                     {post.tipo === "vacio" ? <></> : (post.tipo === "video" ? <div className="col-span-2 w-full aspect-5/2"> <iframe className="size-full col-span-2" src={post.link} /></div> : <div className="size-full col-span-2 flex justify-center h-1/2"><img src={post.link} className="w-2/3 h-fit aspect-3/2" /></div>)}
-                                </div>
+                                    {user && post.id === user.id ? <Button>Delete</Button> : <></>}
+                                </form>
                             </li>
                         );
                     }

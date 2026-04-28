@@ -167,3 +167,48 @@ export const api_likeControl = async (token: string, url: string) => {
     });
     return res
 }
+
+//Obtener posts
+export const api_getPosts = async (page: number) => {
+    const res = await fetch(`${API}/api/get_posts`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            page: page
+        })
+    });
+    return res;
+}
+
+//Publicar post
+export const api_uploadPost = async (mensaje: string, link: string, token: string) => {
+    const res = await fetch(`${API}/api/upload_post`, {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            mensaje: mensaje,
+            link: link
+        })
+    });
+    return res;
+}
+
+//Borrar post
+export const api_borrarPost = async (token: string, postId: string) =>{
+    const res = await fetch(`${API}/api/delete_post`, {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            postId: postId
+        })
+    });
+    return res;
+}
