@@ -5,8 +5,21 @@ import { Button } from '../elements/button';
 import { Input } from '../elements/input';
 import { api_codigo, api_login, api_validar } from '../functions/api_calls';
 import { useAuth } from './authContext';
+import { Label } from '../elements/label';
 
-
+/**
+ * Vista de autenticación de usuario.
+ * 
+ * Flujo:
+ * 1. Usuario ingresa credenciales
+ * 2. Se envía a /api/login
+ * 3. Si no está verificado → muestra validación por código
+ * 4. Se valida con /api/verificar
+ * 5. Si es correcto → se almacena token y redirige
+ * 
+ * @component
+ * @returns {JSX.Element}
+ */
 export const Login = () => {
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
@@ -15,6 +28,13 @@ export const Login = () => {
     const navigate = useNavigate();
     const { logToken } = useAuth();
 
+    /**
+     * Ejecuta login contra backend.
+     * 
+     * @async
+     * @function login
+     * @returns {Promise<void>}
+     */
     const login = async () => {
         try {
             const res = await api_login(user, password)
@@ -25,7 +45,8 @@ export const Login = () => {
                 } else if (res.status === 401) {
                     setValidado(false);
                 } else {
-                    alert(res.status)
+                    alert(data.error)
+                    console.log(data.detalles)
                 }
             } else {
                 logToken(data)
@@ -36,6 +57,13 @@ export const Login = () => {
         }
     }
 
+    /**
+     * Valida código de verificación del usuario.
+     * 
+     * @async
+     * @function validar
+     * @returns {Promise<void>}
+     */
     const validar = async () => {
         try {
             const res = await api_validar(user, valida)
@@ -43,6 +71,7 @@ export const Login = () => {
                 login();
             } else {
                 alert("Codigo erroneo")
+                console.log(res.json())
             }
 
         } catch (error) {
@@ -50,6 +79,13 @@ export const Login = () => {
         }
     }
 
+    /**
+     * Solicita envío de código de verificación.
+     * 
+     * @async
+     * @function codigo
+     * @returns {Promise<void>}
+     */
     const codigo = async () => {
         try {
             const res = await api_codigo(user)
@@ -62,27 +98,28 @@ export const Login = () => {
     }
 
     return (
-        <main className='flex justify-center pt-4 pb-4 h-4/5 bg-blue-50'>
-            <div className='flex flex-col items-center w-1/6 h-1/1'>
-                <h1 className='h-1/10 font-bold'>Login</h1>
-
-                <form className='flex flex-col w-1/1 items-center' onSubmit={(e) => {
-                    e.preventDefault();
-                    login()
-                }}>
-                    <label htmlFor="user">Usuario</label>
-                    <Input type="text" id='user' required value={user} change={setUser} />
-                    <label htmlFor="password">Contraseña</label>
-                    <Input type="password" id='password' required value={password} change={setPassword} />
-                    <Button>Ingresar</Button>
-                </form>
+        <main className='flex justify-center pt-4 pb-4 flex-1 items-center bg-blue-50 w-full'>
+            <div className='flex flex-col items-center w-full md:w-1/6 h-1/1 ml-2 mr-2'>
+                <h1 className='font-bold text-lg'>Login</h1>
 
                 {validado ? (
-                    <Button>
-                        <Link to='../Registro' className='h-1/1 w-1/1 flex items-center justify-center'>
-                            Registrarse
-                        </Link>
-                    </Button>
+                    <>
+                        <form className='flex flex-col w-1/1 items-center' onSubmit={(e) => {
+                            e.preventDefault();
+                            login()
+                        }}>
+                            <Label htmlFor="id">Codigo</Label>
+                            <Input type="text" id='id' required value={user} change={setUser} />
+                            <Label htmlFor="password">Contraseña</Label>
+                            <Input type="password" id='password' required value={password} change={setPassword} />
+                            <Button>Ingresar</Button>
+                        </form>
+                        <Button>
+                            <Link to='../Registro' className='h-1/1 w-1/1 flex items-center justify-center'>
+                                Registrarse
+                            </Link>
+                        </Button>
+                    </>
                 ) : (
                     <>
                         <form className='w-1/1' onSubmit={(e) => { e.preventDefault(); validar() }}>

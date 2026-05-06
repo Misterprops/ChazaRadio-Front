@@ -21,20 +21,20 @@ export const Header = ({ nav }: props) => {
 
   return (
     /* Header de la pagina - Flexbox, items centrados, background amarillo, altura de 10% */
-    <header className="flex items-center bg-yellow-300 h-1/10">
+    <header className="flex items-center bg-yellow-300">
       {/* Logo de la pagina - 10% de ancho y alto del header*/}
 
       {/* Navegador de la pagina - Flexbox, items centrados, sin estilos en la letra, separacion entre elementos*/}
       <nav className="flex items-center style-none justify-around w-9/10">
-        <img src={logo} className="h-1/1 w-1/10" />
+        <img src={logo} className="w-1/4 md:w-1/10" />
         {//Lista los elementos de navegacion
           nav.map(([ruta, texto], idx) => (
-            <Link key={idx} to={ruta} onClick={reloadToken}>
+            <Link key={idx} to={ruta} className="text-sm md:text-lg" onClick={reloadToken}>
               {texto}
             </Link>
           ))}
-        <img src={ud_logo} className="w-1/20" />
-        {user && <button className="bg-red-400 hover:cursor-pointer border h-10 w-1/10" onClick={handleLogout}>Salir</button>}
+        <img src={ud_logo} className="w-1/8 md:w-1/20" />
+        {user && <button className="bg-red-400 hover:cursor-pointer border pl-2 pr-2 md:h-20 md:w-1/10 md:text-lg" onClick={handleLogout}>Salir</button>}
       </nav>
     </header>
   );

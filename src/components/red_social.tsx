@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../elements/button";
 import { useAuth } from "./authContext";
@@ -14,6 +13,18 @@ type post = {
     _id: string
 }
 
+/**
+ * Componente de publicaciones (feed).
+ * 
+ * Funcionalidades:
+ * - Crear posts
+ * - Mostrar posts paginados
+ * - Carga infinita (IntersectionObserver)
+ * - Eliminar posts
+ * 
+ * @component
+ * @returns {JSX.Element}
+ */
 export function Red_social() {
     const didFetch = useRef(false);
     const [mensaje, setMensaje] = useState("");
@@ -26,6 +37,13 @@ export function Red_social() {
     const observer = useRef<IntersectionObserver | null>(null);
     const { user, token, checkAuth } = useAuth();
 
+    /**
+     * Obtiene posts desde backend con paginación.
+     * 
+     * @async
+     * @function fetchPosts
+     * @returns {Promise<void>}
+     */
     const fetchPosts = async () => {
         if (loading || !hasMore) return;
 
@@ -66,23 +84,62 @@ export function Red_social() {
         fetchPosts();
     }, []);
 
-    const publicar = async () => {
+    const isValidURL = (url: string) => {
         try {
-            if (token && await checkAuth()) {
-                const res = await api_uploadPost(mensaje, link, token)
-                if (res.ok) {
-                    alert("Post publicado")
-                } else {
-                    alert("Error al publicar el post");
+            new URL(url);
+            if ((url.includes("youtube") || url.includes("youtu.be")) || frame) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch {
+            return false;
+        }
+    };
+
+    const maxLength = (texto: string) => {
+        return texto.length > 500 ? false : true
+    }
+
+    /**
+     * Publica un nuevo post.
+     * 
+     * @async
+     * @returns {Promise<void>}
+     */
+    const publicar = async () => {
+        if (maxLength(mensaje) || maxLength(link)) {
+            if (isValidURL(link)) {
+                try {
+                    if (token && await checkAuth()) {
+                        const res = await api_uploadPost(mensaje, link, token)
+                        if (res.ok) {
+                            alert("Post publicado");
+                            setMensaje("");
+                            setLink("")
+                        } else {
+                            alert("Error al publicar el post");
+                        }
+                    } else {
+                        alert("Error de autenticacion")
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
                 }
             } else {
-                alert("Error de autenticacion")
+                alert("El url no es valido")
             }
-        } catch (error) {
-            console.error("Error:", error);
+        } else {
+            alert("Se excedio el maximo de caracteres")
         }
     }
 
+    /**
+     * Elimina un post del usuario.
+     * 
+     * @param {string} postId
+     * @returns {Promise<void>}
+     */
     const borrar = async (postId: string) => {
         if (token && await checkAuth()) {
             const res = await api_borrarPost(token, postId);
@@ -96,65 +153,83 @@ export function Red_social() {
     }
 
     return (
-        <div className="flex items-center w-1/1 h-1/1 border-r-2 border-l-2 flex-col">
+        <div className="flex items-center w-full pl-4 pr-4 justify-center flex-col">
 
             {user ?
-                <div className="flex w-9/10 justify-end">
-                    <span className="text-sm">{user.nombre}</span>
+                <div className="flex w-full justify-end">
+                    <span className="text-medium wrap-break-word">{user.nombre}</span>
                 </div>
                 :
-                <div className="flex w-9/10 justify-end">
-                    <span className="text-sm">Name</span>
+                <div className="flex w-full justify-end">
+                    <span className="text-medium wrap-break-word">Name</span>
                 </div>
             }
 
-            <div className="grid w-9/10">
-                <form className="flex flex-col w-1/1 items-center" onSubmit={(e) => { e.preventDefault(); setFrame(!frame) }}>
-                    <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" required rows={5} placeholder="Escribe tu mensaje" value={mensaje} onChange={(e) => { setMensaje(e.target.value) }} />
-                    <textarea className="bg-fuchsia-300 w-1/1 mb-2 resize-none" rows={2} placeholder="Comparte tu contenido" value={link} onChange={(e) => { setLink(e.target.value) }} />
-                    <div className="flex justify-center mt-2 w-1/1">
+            <div className="w-full">
+                <form className="flex flex-col w-full items-center" onSubmit={(e) => { e.preventDefault(); setFrame(!frame) }}>
+                    <textarea className="bg-fuchsia-300 w-full mb-2 resize-none" maxLength={500} rows={5} placeholder="Escribe tu mensaje" value={mensaje} onChange={(e) => { setMensaje(e.target.value) }} />
+                    <textarea className="bg-fuchsia-300 w-full mb-2 resize-none" maxLength={500} rows={2} placeholder="Comparte tu contenido" value={link} onChange={(e) => { setLink(e.target.value) }} />
+                    <div className="flex justify-center mt-2 w-full">
                         {(link && frame) ? (
-                            <div className="flex flex-col items-center w-1/1">
+                            <div className="flex flex-col items-center w-full">
                                 <Button>
                                     Imagen
                                 </Button>
-                                <iframe className="w-1/1" src={link} />
+                                <iframe className="w-full" src={link} />
                             </div>
                         ) : (link && !frame) ? (
-                            <div className="flex flex-col items-center w-1/1">
+                            <div className="flex flex-col items-center w-full">
                                 <Button>
                                     Video
                                 </Button>
-                                <img src={link} className="w-1/2" />
+                                <img src={link} className="w-full md:w-1/2" />
                             </div>
                         ) : <img />}
                     </div>
                 </form>
-                <form className="flex flex-col w-1/1 items-center" onSubmit={(e) => { e.preventDefault(); publicar() }}>
+                <form className="flex flex-col w-full items-center" onSubmit={(e) => { e.preventDefault(); publicar() }}>
                     <Button>Publicar</Button>
                 </form>
             </div>
-            <ul className="flex flex-col w-9/10">
+            <ul className="flex flex-col w-full">
                 {publicacion.map((post, idx) => {
                     if (idx === publicacion.length - 1) {
                         return (
                             <li ref={lastPostRef} key={post._id} className="mt-4">
-                                <form className="grid grid-cols-2" onSubmit={(e) => { e.preventDefault(); borrar(post._id) }}>
-                                    <span>{post.mensaje}</span>
-                                    <span className="text-right">By: {post.nombre}</span>
-                                    {post.tipo === "vacio" ? <></> : (post.tipo === "video" ? <div className="col-span-2 w-full aspect-5/2"> <iframe className="size-full col-span-2" src={post.link} /></div> : <div className="size-full col-span-2 flex justify-center h-1/2"><img src={post.link} className="w-2/3 h-fit aspect-3/2" /></div>)}
-                                    {user && post.id === user.id ? <Button>Delete</Button> : <></>}
+                                <form className="grid grid-cols-1 md:grid-cols-2" onSubmit={(e) => { e.preventDefault(); borrar(post._id) }}>
+                                    <span className="col-span-1 text-medium wrap-break-word">{post.mensaje}</span>
+                                    <span className="col-span-1 text-medium text-right wrap-break-word">By: {post.nombre}</span>
+                                    {post.tipo === "vacio" ? <></> : (post.tipo === "video" ?
+                                        <div className="col-span-1 md:col-span-2 w-full md:aspect-6/2">
+                                            <iframe className="size-full md:col-span-2" src={post.link} />
+                                        </div> :
+                                        <div className="w-full col-span-1 md:col-span-2 flex justify-center">
+                                            <img src={post.link} className="md:w-2/3 h-fit md:aspect-4/2" />
+                                        </div>)}
+                                    {user && post.id === user.id ?
+                                        <div className="col-span-1 w-full md:col-span-2">
+                                            <Button>Delete</Button>
+                                        </div> : <></>}
                                 </form>
                             </li>
                         );
                     } else {
                         return (
                             <li key={post._id} className="mt-4">
-                                <form className="grid grid-cols-2" onSubmit={(e) => { e.preventDefault(); borrar(post._id) }}>
-                                    <span>{post.mensaje}</span>
-                                    <span className="text-right">By: {post.nombre}</span>
-                                    {post.tipo === "vacio" ? <></> : (post.tipo === "video" ? <div className="col-span-2 w-full aspect-5/2"> <iframe className="size-full col-span-2" src={post.link} /></div> : <div className="size-full col-span-2 flex justify-center h-1/2"><img src={post.link} className="w-2/3 h-fit aspect-3/2" /></div>)}
-                                    {user && post.id === user.id ? <Button>Delete</Button> : <></>}
+                                <form className="grid grid-cols-1 md:grid-cols-2" onSubmit={(e) => { e.preventDefault(); borrar(post._id) }}>
+                                    <span className="col-span-1 text-medium wrap-break-word">{post.mensaje}</span>
+                                    <span className="col-span-1 text-medium text-right wrap-break-word">By: {post.nombre}</span>
+                                    {post.tipo === "vacio" ? <></> : (post.tipo === "video" ?
+                                        <div className="col-span-1 md:col-span-2 w-full md:aspect-6/2">
+                                            <iframe className="size-full md:col-span-2" src={post.link} />
+                                        </div> :
+                                        <div className="w-full col-span-1 md:col-span-2 flex justify-center">
+                                            <img src={post.link} className="md:w-2/3 h-fit md:aspect-4/2" />
+                                        </div>)}
+                                    {user && post.id === user.id ?
+                                        <div className="col-span-1 w-full md:col-span-2">
+                                            <Button>Delete</Button>
+                                        </div> : <></>}
                                 </form>
                             </li>
                         );

@@ -1,0 +1,264 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>rc_front - v0.0.0</title><meta name="description" content="Documentation for rc_front"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">rc_front - v0.0.0</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>rc_front - v0.0.0</h1></div><div class="tsd-panel tsd-typography"><h1 id="chazaradio-frontend" class="tsd-anchor-link">ChazaRadio Frontend<a href="#chazaradio-frontend" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Cliente React/TypeScript para la plataforma de radio social ChazaRadio.</p>
+<h2 id="🎯-descripción" class="tsd-anchor-link">🎯 Descripción<a href="#🎯-descripción" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Aplicación web de una sola página (SPA) que permite a los usuarios:</p>
+<ul>
+<li>🔐 <strong>Autenticación</strong>: Registro con verificación de email, login seguro con JWT</li>
+<li>🎙️ <strong>Grabar Audios</strong>: Capturar audio del micrófono usando Web Audio API</li>
+<li>▶️ <strong>Reproducir</strong>: Escuchar audios con sistema de likes en tiempo real</li>
+<li>📱 <strong>Red Social</strong>: Crear posts, ver feed con paginación</li>
+<li>🎙️ <strong>Podcasts</strong>: Acceder a series de podcasts</li>
+</ul>
+<h2 id="🛠️-stack-tecnológico" class="tsd-anchor-link">🛠️ Stack Tecnológico<a href="#🛠️-stack-tecnológico" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Tecnología</th>
+<th>Versión</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>React</td>
+<td>19</td>
+<td>Framework UI</td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td>5.4+</td>
+<td>Tipado estático</td>
+</tr>
+<tr>
+<td>Vite</td>
+<td>5+</td>
+<td>Bundler y dev server</td>
+</tr>
+<tr>
+<td>React Router</td>
+<td>v7</td>
+<td>Enrutamiento SPA</td>
+</tr>
+<tr>
+<td>Tailwind CSS</td>
+<td>3+</td>
+<td>Estilos</td>
+</tr>
+<tr>
+<td>Web Audio API</td>
+<td>Nativa</td>
+<td>Grabación de audio</td>
+</tr>
+</tbody>
+</table>
+<h2 id="📦-instalación-rápida" class="tsd-anchor-link">📦 Instalación Rápida<a href="#📦-instalación-rápida" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code class="bash"><span class="hl-0"># 1. Instalar dependencias</span><br/><span class="hl-1">npm</span><span class="hl-2"> </span><span class="hl-3">install</span><br/><br/><span class="hl-0"># 2. Crear .env.local</span><br/><span class="hl-1">echo</span><span class="hl-2"> </span><span class="hl-3">&quot;VITE_APP_API=http://localhost:3000&quot;</span><span class="hl-2"> &gt; </span><span class="hl-3">.env.local</span><br/><br/><span class="hl-0"># 3. Ejecutar servidor de desarrollo</span><br/><span class="hl-1">npm</span><span class="hl-2"> </span><span class="hl-3">run</span><span class="hl-2"> </span><span class="hl-3">dev</span><br/><br/><span class="hl-0"># 4. Abrir navegador</span><br/><span class="hl-0"># http://localhost:5173</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>Requisitos</strong>: Node.js 18+ y npm</p>
+<h2 id="📖-documentación" class="tsd-anchor-link">📖 Documentación<a href="#📖-documentación" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><a href="media/FRONTEND_SETUP.md">FRONTEND_SETUP.md</a> — Instalación detallada y troubleshooting</li>
+<li><a href="media/ARCHITECTURE.md">../ARCHITECTURE.md</a> — Arquitectura general del proyecto</li>
+<li><a href="media/API_DOCS.md">../API_DOCS.md</a> — Documentación de API REST</li>
+</ul>
+<h2 id="📁-estructura-principal" class="tsd-anchor-link">📁 Estructura Principal<a href="#📁-estructura-principal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code><span class="hl-4">src</span><span class="hl-2">/</span><br/><span class="hl-2">├── </span><span class="hl-4">components</span><span class="hl-2">/          # </span><span class="hl-4">Componentes</span><span class="hl-2"> </span><span class="hl-4">React</span><span class="hl-2"> </span><span class="hl-4">funcionales</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">authContext</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">  # 🔐 </span><span class="hl-4">Contexto</span><span class="hl-2"> </span><span class="hl-4">de</span><span class="hl-2"> </span><span class="hl-4">autenticación</span><span class="hl-2"> </span><span class="hl-4">global</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">login</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">        # </span><span class="hl-4">Página</span><span class="hl-2"> </span><span class="hl-4">de</span><span class="hl-2"> </span><span class="hl-4">login</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">emisora_main</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2"> # </span><span class="hl-4">Página</span><span class="hl-2"> </span><span class="hl-1">principal</span><span class="hl-2"> (</span><span class="hl-4">player</span><span class="hl-2">)</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">perfil</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">       # </span><span class="hl-4">Perfil</span><span class="hl-2"> + </span><span class="hl-4">grabador</span><span class="hl-2"> </span><span class="hl-4">de</span><span class="hl-2"> </span><span class="hl-4">audio</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">red_social</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">   # </span><span class="hl-4">Feed</span><span class="hl-2"> </span><span class="hl-4">social</span><br/><span class="hl-2">│   └── </span><span class="hl-4">recorder</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">     # </span><span class="hl-4">Componente</span><span class="hl-2"> </span><span class="hl-4">grabadora</span><span class="hl-2"> </span><span class="hl-4">Web</span><span class="hl-2"> </span><span class="hl-4">Audio</span><span class="hl-2"> </span><span class="hl-5">API</span><br/><span class="hl-2">│</span><br/><span class="hl-2">├── </span><span class="hl-4">elements</span><span class="hl-2">/            # </span><span class="hl-4">Componentes</span><span class="hl-2"> </span><span class="hl-5">UI</span><span class="hl-2"> </span><span class="hl-4">reutilizables</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">button</span><span class="hl-2">.</span><span class="hl-4">tsx</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">input</span><span class="hl-2">.</span><span class="hl-4">tsx</span><br/><span class="hl-2">│   ├── </span><span class="hl-4">header</span><span class="hl-2">.</span><span class="hl-4">tsx</span><br/><span class="hl-2">│   └── </span><span class="hl-4">footer</span><span class="hl-2">.</span><span class="hl-4">tsx</span><br/><span class="hl-2">│</span><br/><span class="hl-2">├── </span><span class="hl-4">functions</span><span class="hl-2">/</span><br/><span class="hl-2">│   └── </span><span class="hl-4">api_calls</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">    # 📡 </span><span class="hl-4">Cliente</span><span class="hl-2"> </span><span class="hl-5">HTTP</span><span class="hl-2"> </span><span class="hl-4">centralizado</span><br/><span class="hl-2">│</span><br/><span class="hl-2">├── </span><span class="hl-4">routes</span><span class="hl-2">/              # </span><span class="hl-4">Páginas</span><span class="hl-2"> </span><span class="hl-4">principales</span><br/><span class="hl-2">├── </span><span class="hl-4">App</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">              # </span><span class="hl-4">Componente</span><span class="hl-2"> </span><span class="hl-4">raíz</span><br/><span class="hl-2">├── </span><span class="hl-4">main</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">             # </span><span class="hl-4">Entry</span><span class="hl-2"> </span><span class="hl-4">point</span><br/><span class="hl-2">└── </span><span class="hl-4">routes</span><span class="hl-2">.</span><span class="hl-4">tsx</span><span class="hl-2">           # </span><span class="hl-4">Configuración</span><span class="hl-2"> </span><span class="hl-4">de</span><span class="hl-2"> </span><span class="hl-4">router</span>
+</code><button>Copy</button></pre>
+
+<h2 id="🚀-scripts-disponibles" class="tsd-anchor-link">🚀 Scripts Disponibles<a href="#🚀-scripts-disponibles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code class="bash"><span class="hl-1">npm</span><span class="hl-2"> </span><span class="hl-3">run</span><span class="hl-2"> </span><span class="hl-3">dev</span><span class="hl-2">       </span><span class="hl-0"># Inicia servidor development (http://localhost:5173)</span><br/><span class="hl-1">npm</span><span class="hl-2"> </span><span class="hl-3">run</span><span class="hl-2"> </span><span class="hl-3">build</span><span class="hl-2">     </span><span class="hl-0"># Build para producción</span><br/><span class="hl-1">npm</span><span class="hl-2"> </span><span class="hl-3">run</span><span class="hl-2"> </span><span class="hl-3">preview</span><span class="hl-2">   </span><span class="hl-0"># Previsualiza build</span><br/><span class="hl-1">npm</span><span class="hl-2"> </span><span class="hl-3">run</span><span class="hl-2"> </span><span class="hl-3">lint</span><span class="hl-2">      </span><span class="hl-0"># Verifica código (si configurado)</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="🔒-seguridad" class="tsd-anchor-link">🔒 Seguridad<a href="#🔒-seguridad" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong>JWT</strong>: Almacenado en localStorage, incluye expiración de 20 minutos</li>
+<li><strong>Auto-renovación</strong>: Token se renueva automáticamente si faltan &lt;5 min</li>
+<li><strong>Headers</strong>: CORS configurado en backend</li>
+<li><strong>HTTPS</strong>: Requerido en producción (Web Audio API no funciona en HTTP)</li>
+</ul>
+<h2 id="🔌-integración-backend" class="tsd-anchor-link">🔌 Integración Backend<a href="#🔌-integración-backend" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Todas las llamadas API van a través de <code>src/functions/api_calls.tsx</code>:</p>
+<pre><code class="typescript"><span class="hl-0">// Ejemplo: Subir audio</span><br/><span class="hl-6">const</span><span class="hl-2"> </span><span class="hl-5">res</span><span class="hl-2"> = </span><span class="hl-7">await</span><span class="hl-2"> </span><span class="hl-1">api_uploadSounds</span><span class="hl-2">(</span><span class="hl-4">formData</span><span class="hl-2">, </span><span class="hl-4">token</span><span class="hl-2">);</span><br/><span class="hl-7">if</span><span class="hl-2"> (</span><span class="hl-4">res</span><span class="hl-2">.</span><span class="hl-4">ok</span><span class="hl-2">) {</span><br/><span class="hl-2">  </span><span class="hl-6">const</span><span class="hl-2"> </span><span class="hl-5">data</span><span class="hl-2"> = </span><span class="hl-7">await</span><span class="hl-2"> </span><span class="hl-4">res</span><span class="hl-2">.</span><span class="hl-1">json</span><span class="hl-2">();</span><br/><span class="hl-2">  </span><span class="hl-4">console</span><span class="hl-2">.</span><span class="hl-1">log</span><span class="hl-2">(</span><span class="hl-3">&#39;Audio subido:&#39;</span><span class="hl-2">, </span><span class="hl-4">data</span><span class="hl-2">.</span><span class="hl-4">audioId</span><span class="hl-2">);</span><br/><span class="hl-2">}</span>
+</code><button type="button">Copy</button></pre>
+
+<p><strong>URL Base</strong>: Configurada en <code>.env.local</code> → <code>VITE_APP_API</code></p>
+<h2 id="🌐-enrutamiento" class="tsd-anchor-link">🌐 Enrutamiento<a href="#🌐-enrutamiento" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Ruta</th>
+<th>Descripción</th>
+<th>Protegida</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>Home - Reproductor principal</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>/login</code></td>
+<td>Página de inicio de sesión</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>/registro</code></td>
+<td>Página de registro</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>/emisora</code></td>
+<td>Emisora (reproductor)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>/perfil</code></td>
+<td>Perfil del usuario</td>
+<td>Sí</td>
+</tr>
+</tbody>
+</table>
+<h2 id="🎙️-características-principales" class="tsd-anchor-link">🎙️ Características Principales<a href="#🎙️-características-principales" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="autenticación" class="tsd-anchor-link">Autenticación<a href="#autenticación" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Registro con verificación de email (código 6 dígitos)</li>
+<li>Login seguro con JWT</li>
+<li>Renovación automática de token</li>
+<li>Logout limpio</li>
+</ul>
+<h3 id="grabación-de-audio" class="tsd-anchor-link">Grabación de Audio<a href="#grabación-de-audio" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Web Audio API nativa del navegador</li>
+<li>Captura desde micrófono del usuario</li>
+<li>Previsualización de audio local</li>
+<li>Upload a servidor con metadata</li>
+</ul>
+<h3 id="reproducción" class="tsd-anchor-link">Reproducción<a href="#reproducción" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Player HTML5 integrado</li>
+<li>Sistema de likes con contador</li>
+<li>Lista paginada de audios</li>
+<li>Caché local (180s en backend)</li>
+</ul>
+<h3 id="red-social" class="tsd-anchor-link">Red Social<a href="#red-social" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Crear posts con texto y links</li>
+<li>Feed paginado</li>
+<li>Eliminar posts (solo si eres dueño)</li>
+<li>Ordenado por fecha</li>
+</ul>
+<h2 id="🔄-estado-global-authcontext" class="tsd-anchor-link">🔄 Estado Global (AuthContext)<a href="#🔄-estado-global-authcontext" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>El contexto de autenticación centralizado expone:</p>
+<pre><code class="typescript"><span class="hl-6">const</span><span class="hl-2"> { </span><span class="hl-5">user</span><span class="hl-2">, </span><span class="hl-5">token</span><span class="hl-2">, </span><span class="hl-5">logToken</span><span class="hl-2">, </span><span class="hl-5">logout</span><span class="hl-2">, </span><span class="hl-5">loading</span><span class="hl-2">, </span><span class="hl-5">reloadToken</span><span class="hl-2">, </span><span class="hl-5">checkAuth</span><span class="hl-2"> } = </span><span class="hl-1">useAuth</span><span class="hl-2">();</span>
+</code><button type="button">Copy</button></pre>
+
+<table>
+<thead>
+<tr>
+<th>Propiedad</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code></td>
+<td><code>User|null</code></td>
+<td>Datos del usuario autenticado</td>
+</tr>
+<tr>
+<td><code>token</code></td>
+<td><code>string|null</code></td>
+<td>JWT actual</td>
+</tr>
+<tr>
+<td><code>logToken()</code></td>
+<td>Function</td>
+<td>Guarda un JWT nuevo</td>
+</tr>
+<tr>
+<td><code>logout()</code></td>
+<td>Function</td>
+<td>Cierra sesión</td>
+</tr>
+<tr>
+<td><code>loading</code></td>
+<td>boolean</td>
+<td>Indicador de carga inicial</td>
+</tr>
+<tr>
+<td><code>reloadToken()</code></td>
+<td>Function</td>
+<td>Renueva token si expira pronto</td>
+</tr>
+<tr>
+<td><code>checkAuth()</code></td>
+<td>Function</td>
+<td>Valida sesión al iniciar app</td>
+</tr>
+</tbody>
+</table>
+<h2 id="🎨-estilos" class="tsd-anchor-link">🎨 Estilos<a href="#🎨-estilos" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Se utiliza <strong>Tailwind CSS</strong> utility-first:</p>
+<ul>
+<li>Clases directas en JSX (ej: <code>className=&quot;bg-blue-50 text-white&quot;</code>)</li>
+<li>Configuración en <code>tailwind.config.js</code> (si existe)</li>
+<li>Estilos globales en <code>index.css</code> y <code>App.css</code></li>
+</ul>
+<h2 id="🧪-testing-futuro" class="tsd-anchor-link">🧪 Testing (Futuro)<a href="#🧪-testing-futuro" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Recomendaciones para tests:</p>
+<ul>
+<li><strong>Componentes</strong>: Vitest + React Testing Library</li>
+<li><strong>E2E</strong>: Playwright o Cypress</li>
+<li><strong>API Mocking</strong>: MSW (Mock Service Worker)</li>
+</ul>
+<h2 id="📱-responsive" class="tsd-anchor-link">📱 Responsive<a href="#📱-responsive" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>La app está diseñada para:</p>
+<ul>
+<li>✅ Desktop (1920px+)</li>
+<li>✅ Tablet (768px - 1024px)</li>
+<li>✅ Mobile (320px - 767px)</li>
+</ul>
+<p>Usa Tailwind breakpoints: <code>sm:</code>, <code>md:</code>, <code>lg:</code>, <code>xl:</code>, <code>2xl:</code></p>
+<h2 id="🔧-troubleshooting" class="tsd-anchor-link">🔧 Troubleshooting<a href="#🔧-troubleshooting" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Problema</th>
+<th>Solución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;VITE_APP_API no definida&quot;</td>
+<td>Crear <code>.env.local</code> con <code>VITE_APP_API=...</code></td>
+</tr>
+<tr>
+<td>&quot;Micrófono no disponible&quot;</td>
+<td>Debe ser localhost o HTTPS en producción</td>
+</tr>
+<tr>
+<td>&quot;API no responde&quot;</td>
+<td>Verificar que backend corre en puerto 3000</td>
+</tr>
+<tr>
+<td>&quot;CORS error&quot;</td>
+<td>Backend debe tener CORS configurado</td>
+</tr>
+</tbody>
+</table>
+<p>Ver <a href="media/FRONTEND_SETUP.md">FRONTEND_SETUP.md</a> para más detalles.</p>
+<h2 id="📞-contacto-y-contribuciones" class="tsd-anchor-link">📞 Contacto y Contribuciones<a href="#📞-contacto-y-contribuciones" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong>Issues</strong>: Reportar en GitHub</li>
+<li><strong>Pull Requests</strong>: Enviar cambios vía PR</li>
+<li><strong>Documentación</strong>: Mantener actualizada en <a href="http://ARCHITECTURE.md">ARCHITECTURE.md</a> y <a href="http://WORKFLOWS.md">WORKFLOWS.md</a></li>
+</ul>
+<h2 id="📄-licencia" class="tsd-anchor-link">📄 Licencia<a href="#📄-licencia" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>[Especificar licencia si existe]</p>
+<hr>
+<p><strong>Creado por</strong>: ChazaRadio Team<br>
+<strong>Última actualización</strong>: Abril 2026</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#chazaradio-frontend"><span>Chaza<wbr/>Radio <wbr/>Frontend</span></a><ul><li><a href="#🎯-descripción"><span>🎯 <wbr/>Descripción</span></a></li><li><a href="#🛠️-stack-tecnológico"><span>🛠️ <wbr/>Stack <wbr/>Tecnológico</span></a></li><li><a href="#📦-instalación-rápida"><span>📦 <wbr/>Instalación <wbr/>Rápida</span></a></li><li><a href="#📖-documentación"><span>📖 <wbr/>Documentación</span></a></li><li><a href="#📁-estructura-principal"><span>📁 <wbr/>Estructura <wbr/>Principal</span></a></li><li><a href="#🚀-scripts-disponibles"><span>🚀 <wbr/>Scripts <wbr/>Disponibles</span></a></li><li><a href="#🔒-seguridad"><span>🔒 <wbr/>Seguridad</span></a></li><li><a href="#🔌-integración-backend"><span>🔌 <wbr/>Integración <wbr/>Backend</span></a></li><li><a href="#🌐-enrutamiento"><span>🌐 <wbr/>Enrutamiento</span></a></li><li><a href="#🎙️-características-principales"><span>🎙️ <wbr/>Características <wbr/>Principales</span></a></li><li><ul><li><a href="#autenticación"><span>Autenticación</span></a></li><li><a href="#grabación-de-audio"><span>Grabación de <wbr/>Audio</span></a></li><li><a href="#reproducción"><span>Reproducción</span></a></li><li><a href="#red-social"><span>Red <wbr/>Social</span></a></li></ul></li><li><a href="#🔄-estado-global-authcontext"><span>🔄 <wbr/>Estado <wbr/>Global (<wbr/>Auth<wbr/>Context)</span></a></li><li><a href="#🎨-estilos"><span>🎨 <wbr/>Estilos</span></a></li><li><a href="#🧪-testing-futuro"><span>🧪 <wbr/>Testing (<wbr/>Futuro)</span></a></li><li><a href="#📱-responsive"><span>📱 <wbr/>Responsive</span></a></li><li><a href="#🔧-troubleshooting"><span>🔧 <wbr/>Troubleshooting</span></a></li><li><a href="#📞-contacto-y-contribuciones"><span>📞 <wbr/>Contacto y <wbr/>Contribuciones</span></a></li><li><a href="#📄-licencia"><span>📄 <wbr/>Licencia</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">rc_front - v0.0.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

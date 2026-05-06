@@ -6,10 +6,10 @@ import { Login } from "../components/login";
 export default function LogAccess() {
   //Formacion de acceso - Header envia por props los elementos de navegacion, El cuerpo del documento y el footer
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header nav={[["/Registro", "Registrarme"], ["/Emisora", "Emisora"]]} />
       <Login />
       <Footer />
-    </>
+    </div>
   );
 }

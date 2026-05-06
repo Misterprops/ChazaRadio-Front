@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { Button } from "../elements/button";
-import { api_getAudios, api_getLikes, api_likeControl } from "../functions/api_calls";
+import { api_borrarAudio, api_getAudios, api_getLikes, api_likeControl } from "../functions/api_calls";
 import { useAuth } from "./authContext";
 const API = import.meta.env.VITE_APP_API;
 
@@ -8,15 +8,34 @@ type audio = {
   url: string,
   titulo: string,
   likes: string,
-  autor: string
+  autor: string,
+  id: string,
+  enabled: boolean,
+  _id: string
 }
 
-export function Lista() {
+type props = {
+  refresh?: number;
+};
+
+/**
+ * Lista de reproducción de audios.
+ * 
+ * Funcionalidades:
+ * - Reproducción secuencial
+ * - Likes/unlikes
+ * - Eliminación de audios propios
+ * 
+ * @component
+ * @param {{refresh: number}} props
+ * @returns {JSX.Element}
+ */
+export function Lista({ refresh }: props) {
   const audio = useRef<HTMLAudioElement | null>(null);
   const [audios, setAudios] = useState<audio[]>([]);
   const [likes, setLikes] = useState([]);
   const [playingUrl, setPlayingUrl] = useState<string | null>(null);
-  const { token } = useAuth();
+  const { user, token, checkAuth } = useAuth();
 
   useEffect(() => {
     const getAudios = async () => {
@@ -31,6 +50,10 @@ export function Lista() {
         alert("Error al generar audios");
       }
     }
+    getAudios();
+  }, [refresh])
+
+  useEffect(() => {
     const getLikeList = async () => {
       try {
         if (!token) return;
@@ -42,10 +65,15 @@ export function Lista() {
         alert("Error al obtener los likes");
       }
     }
-    getAudios();
     getLikeList();
   }, [token])
 
+  /**
+   * Controla like/unlike de audio.
+   * 
+   * @param {Object} audio
+   * @returns {Promise<void>}
+   */
   const likeControl = async (audio: audio) => {
     if (token) {
       const res = await api_likeControl(token, audio.url);
@@ -57,10 +85,24 @@ export function Lista() {
     }
   }
 
+  /**
+   * Verifica si audio tiene like del usuario.
+   * 
+   * @param {string} url
+   * @returns {boolean}
+   */
   const likeFind = (url: String) => {
+    console.log(likes)
     return likes.find(link => link === url);
   }
 
+  /**
+   * Controla reproducción de audios.
+   * 
+   * @param {string} url
+   * @param {number} index
+   * @returns {void}
+   */
   const handlePlay = (url: audio["url"], index: number) => {
     if (!audio.current || !audio.current.src.includes(encodeURI(url))) {
       // Si cambia de audio, detener el anterior
@@ -92,21 +134,44 @@ export function Lista() {
     }
   };
 
+  /**
+   * Elimina audio del usuario.
+   * 
+   * @param {string} id
+   * @returns {Promise<void>}
+   */
+  const borrar = async (id: string) => {
+    if (token && await checkAuth()) {
+      const res = await api_borrarAudio(token, id);
+      if (res.ok) {
+        alert("Audio borrado");
+        setAudios(prev => prev.filter(audio => audio._id !== id));
+      } else {
+        alert("Error al borrar el audio");
+      }
+    }
+  }
+
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">Audios guardados</h2>
-      <ul className="space-y-2">
+    <div className="flex items-center w-full pl-4 pr-4 flex-col">
+      <span className="text-xl font-bold mb-2">Audios guardados</span>
+      <ul className="w-full space-y-2">
         {audios.map((audio, idx) => (
-          <li key={idx} className="flex items-center justify-between border p-2 rounded">
-            <div className="grid grid-cols-2 w-1/1">
-              <span className="col-span-2 text-center">{audio.titulo}</span>
-              <span className="col-span-2 text-end">Por: {audio.autor}</span>
-              <button className={likeFind(audio.url) ? "bg-red-400 mb-1 mt-1" : "bg-green-400 mb-1 mt-1"} onClick={() => likeControl(audio)}>{audio.likes + " Likes"} </button>
+          <li key={audio._id} className="flex items-center justify-between border p-2 rounded">
+            <div className="grid grid-cols-1 md:grid-cols-2 w-full">
+              <span className="md:col-span-2 text-center w-full wrap-break-word">{audio.titulo}</span>
+              <span className="md:col-span-2 text-end w-full wrap-break-word">Por: {audio.autor}</span>
+              <button className={likeFind(audio.url) ? "bg-red-400 h-10 mb-1 mt-1" : "bg-green-400 h-10 mb-1 mt-1"} onClick={() => likeControl(audio)}>{audio.likes + " Likes"} </button>
               <form onSubmit={(e) => { e.preventDefault(); handlePlay(audio.url, idx) }}>
                 <Button>
                   {playingUrl === audio.url ? '⏸️ Pausar' : '▶️ Reproducir'}
                 </Button>
               </form>
+              {audio.id === user?.id &&
+                <form className="md:col-span-2" onSubmit={(e) => { e.preventDefault(); borrar(audio._id) }}>
+                  <Button>Delete</Button>
+                </form>
+              }
             </div>
           </li>
         ))}

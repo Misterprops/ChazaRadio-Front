@@ -8,6 +8,6 @@ type props = {
 
 export const Input = ({ type, id, required, value, change }: props) => {
     return (
-        <input type={type} id={id} value={value} required={required} onChange={(e) => change(e.target.value)} className="bg-fuchsia-300 w-1/1 h-8 pb-1 mb-4" />
+        <input type={type} id={id} value={value} required={required} onChange={(e) => change(e.target.value)} className="bg-fuchsia-300 text-wrap w-full text-lg h-8 pb-1 mb-4" />
     );
 }
