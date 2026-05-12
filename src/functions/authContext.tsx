@@ -16,7 +16,7 @@
  */
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { api_checkAuth, api_reloadAuth } from "../functions/api_calls";
+import { api_checkAuth, api_reloadAuth } from "./api_calls";
 
 /**
  * Tipo que representa los datos del usuario decodificados del JWT
@@ -190,25 +190,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (token) {
                 //Obtiene los datos del usuario
                 const payload = JSON.parse(atob(token.split(".")[1]));
+                console.log(payload)
                 //Obtiene la hora actual
                 const now = Date.now() / 1000;
-
+                console.log(now)
+                console.log((payload.exp - now) < 300)
                 // Renovar si faltan menos de 5 minutos
-                if (payload.exp - now < 300) {
+                if ((payload.exp - now) < 300) {
                     //Llama al api para renovar el token
+                    console.log(token)
                     const res = await api_reloadAuth(token)
-                    //Si no devuelve el token genera la alerta
-                    if (!res) return alert("Error al generar el token")
+                    console.log(res)
                     //Obtiene el nuevo token
                     const data = await res.json()
+                    console.log(data)
+                    //Si no devuelve el token genera la alerta
+                    if (!res.ok) {
+                        console.log(data)
+                        console.log("EEEEERRRRORROORROR")
+                        return;
+                    }
                     //Crea el nuevo token
-                    logToken(data.token);
+                    console.log(data)
+                    logout()
+                    logToken(data);
+
                 }
             }
-        } catch {
+        } catch (error) {
             //Si ocurre un error, termina la sesión
             alert("Error al decodificar token");
             logout();
+            console.log(error)
         }
     }
 
@@ -239,12 +252,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 const decoded = decodeToken(storedToken);
                 //Si no existe el token
                 if (!decoded) {
-                    //Remueve el token del storage
-                    localStorage.removeItem("token");
-                    //Elimina el token
-                    setToken(null);
-                    //Elimina el usuario
-                    setUser(null);
+                    //Cierra sesión
+                    logout()
+                    //Desactiva la bandera de carga
+                    setLoading(false);
                     return false
                 } else {
                     //Si existe el token, lo agrega
@@ -256,9 +267,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     return true
                 }
             } else {
+                //Cierra sesión
+                logout()
+                //Desactiva la bandera de carga
+                setLoading(false);
                 return false
             }
-        }catch(error){
+        } catch (error) {
             console.error("Error al revisar la sesión")
             return false
         }

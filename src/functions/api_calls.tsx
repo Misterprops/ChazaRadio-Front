@@ -1,6 +1,6 @@
 /**
  * @file api_calls.tsx
- * @description Cliente HTTP centralizado para todas las llamadas API en ChazaRadio
+ * @remarks Cliente HTTP centralizado para todas las llamadas API en ChazaRadio
  * 
  * Este archivo contiene funciones wrapper alrededor de fetch() que:
  * - Apuntan a la API del backend (URL desde VITE_APP_API)
@@ -26,365 +26,45 @@
  */
 const API = import.meta.env.VITE_APP_API;
 
-// ============================================================================
-// 🔐 AUTENTICACIÓN (Login, Registro, Verificación)
-// ============================================================================
-
-/**
- * Inicia sesión con email/usuario y contraseña
- * 
- * @async
- * @param {string} user - Email o username del usuario
- * @param {string} password - Contraseña en texto plano
- * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: { token: "jwt...", user: {...} }
- *   - .ok === false (400): Contraseña incorrecta
- *   - .ok === false (401): Usuario no verificado
- *   - .ok === false (404): Usuario no existe
- * 
- * @description
- * Endpoint: POST /api/login
- * - Valida credenciales contra base de datos
- * - Si es correcto: genera JWT (20min expiry)
- * - Si usuario no está verificado: retorna 401 (debe verificar email)
- * - Respuesta: { token, user: { id, correo, nombre, rol } }
- * 
- * @example
- * const res = await api_login('usuario@email.com', 'miContraseña');
- * if (res.ok) {
- *   const data = await res.json();
- *   const { token, user } = data;
- *   logToken(token); // Guarda en localStorage
- * } else if (res.status === 401) {
- *   setNeedVerification(true);
- * }
- */
-export const api_login = async (user: string, password: string) => {
-    const res = await fetch(`${API}/api/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: user,
-            password: password
-        })
-    });
-    return res
-}
-
-/**
- * Verifica un código de email para completar registro o login
- * 
- * @async
- * @param {string} id - Email o username del usuario
- * @param {string} codigo - Código de 6 dígitos recibido por email
- * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: Usuario verificado exitosamente
- *   - .ok === false (400): Código inválido o expirado
- * 
- * @description
- * Endpoint: POST /api/verificar
- * - Valida que el código coincida con el guardado en BD
- * - Verifica que el código no haya expirado (TTL 15min)
- * - Si es correcto: marca usuario como verificado
- * - Si es incorrecto: usuario puede intentar nuevamente
- * 
- * @example
- * const res = await api_validar('usuario@email.com', '123456');
- * if (res.ok) {
- *   console.log('Email verificado!');
- *   // Proceder a login
- * } else {
- *   alert('Código incorrecto');
- * }
- */
-export const api_validar = async (id: string, codigo: string) => {
-    const res = await fetch(`${API}/api/verificar`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: id,
-            codigo: codigo
-        })
-    });
-    return res;
-}
-
-/**
- * Reenvía el código de verificación por email
- * 
- * @async
- * @param {string} id - Email o username del usuario
- * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: Código reenviado exitosamente
- *   - .ok === false: Error al enviar email
- * 
- * @description
- * Endpoint: POST /api/recode
- * - Genera un nuevo código de 6 dígitos
- * - Elimina código anterior
- * - Envía nuevo código por email vía Nodemailer (Gmail SMTP)
- * - TTL: 15 minutos desde reenvío
- * 
- * @example
- * const res = await api_codigo('usuario@email.com');
- * if (res.ok) {
- *   alert('Código reenviado al email');
- * }
- */
-export const api_codigo = async (id: string) => {
-    const res = await fetch(`${API}/api/recode`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: id
-        })
-    });
-    return res;
-}
-
-/**
- * Registra un nuevo usuario en la plataforma
- * 
- * @async
- * @param {string} user - Nombre de usuario (username)
- * @param {string} password - Contraseña en texto plano
- * @param {string} mail - Email del usuario (debe ser único)
- * @param {string} id - Identificador único (puede ser username o id custom)
- * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: Usuario creado, email de verificación enviado
- *   - .ok === false (409): Email o username ya existe
- *   - .ok === false (500): Error en servidor
- * 
- * @description
- * Endpoint: POST /api/registro
- * - Valida que email y username sean únicos
- * - Crea documento en colección Registros (no verificado aún)
- * - Genera código de verificación de 6 dígitos
- * - Envía código por email vía Nodemailer
- * - Usuario debe verificar email antes de poder hacer login
- * 
- * @example
- * const res = await api_registrar('juanperez', 'MiPass123!', 'juan@email.com', 'juan@email.com');
- * if (res.ok) {
- *   alert('Registrado! Verifica tu email');
- *   // Mostrar formulario de verificación
- * } else if (res.status === 409) {
- *   alert('Email ya registrado');
- * }
- */
-export const api_registrar = async (user: string, password: string, mail: string, id: string) => {
-    const res = await fetch(`${API}/api/registro`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            user: user,
-            password: password,
-            email: mail,
-            id: id
-        })
-    });
-    return res;
-}
-
-/**
- * Valida que un JWT sea válido con el backend
- * 
- * @async
- * @param {string} token - JWT a validar
- * @returns {Promise<boolean>} true si token es válido, false si es inválido/expirado
- * 
- * @description
- * Endpoint: GET /api/verify (protegido)
- * - Envía token en header Authorization: Bearer {token}
- * - Backend valida la firma del JWT
- * - Backend verifica expiración
- * - Usado al iniciar la app para restaurar sesión
- * 
- * @example
- * const isValid = await api_checkAuth(storedToken);
- * if (isValid) {
- *   // Token aún válido, mantener sesión
- * } else {
- *   // Token inválido, ir a login
- * }
- */
-export const api_checkAuth = async (token: string) => {
-    const res = await fetch(`${API}/api/verify`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
-    if (!res.ok) {
-        return false;
-    }
-    return true;
-}
-
-/**
- * Renueva un JWT que está a punto de expirar
- * 
- * @async
- * @param {string|null} token - JWT actual a renovar
- * @returns {Promise<string|null>} JWT nuevo si es exitoso, null si falla
- * 
- * @description
- * Endpoint: POST /api/retoken (protegido)
- * - Envía token antiguo en header Authorization
- * - Backend valida el token
- * - Backend genera nuevo JWT (20min expiry a partir de ahora)
- * - Usado por authContext cuando quedan <5 min para expirar
- * - No requiere credenciales nuevamente
- * 
- * @example
- * const newToken = await api_reloadAuth(currentToken);
- * if (newToken) {
- *   logToken(newToken); // Actualiza localStorage
- * } else {
- *   logout(); // Token renovación falló, ir a login
- * }
- */
-export const api_reloadAuth = async (token: string | null) => {
-    if (!token) return null
-    const res = await fetch(`${API}/api/retoken`, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
-    if (!res.ok) return null
-    return res;
-}
-
-// ============================================================================
-// 🎙️ PODCASTS
-// ============================================================================
-
-/**
- * Obtiene todas las series de podcasts disponibles
- * 
- * @async
- * @returns {Promise<Array>} Array de podcasts con serie, autores, episodios, etc
- * 
- * @description
- * Endpoint: POST /api/get_poadcast (público, sin autenticación)
- * - Retorna todas las series de podcasts de la plataforma
- * - Cacheado en backend (180s TTL)
- * - Estructura de podcast: { _id, serie, autores, episodios: [...], ... }
- * 
- * @example
- * const podcasts = await api_poadcasts();
- * podcasts.forEach(podcast => {
- *   console.log(`${podcast.serie} por ${podcast.autores}`);
- * });
- */
-export const api_poadcasts = async () => {
-    const res = await fetch(`${API}/api/get_poadcast`, {
-        method: "POST"
-    });
-
-    return res;
-}
-
-/**
- * Publica o actualiza una serie de podcast
- * 
- * @async
- * @param {string} serie - Nombre/título de la serie de podcast
- * @param {string} autores - Autor(es) del podcast
- * @param {string} url - URL del audio/episodio
- * @param {string} token - JWT del usuario autenticado (protegido)
- * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: Podcast creado/actualizado
- *   - .ok === false (401): Token inválido/expirado
- * 
- * @description
- * Endpoint: POST /api/upload_poadcast (protegido)
- * - Requiere autenticación (JWT)
- * - Crea nueva serie o actualiza existente (upsert)
- * - Almacena creador, titulo, autores, episodios, etc.
- * - Invalida caché de podcasts
- * 
- * @example
- * const res = await api_publicarPoadcast(
- *   'Mi Podcast Favorito',
- *   'Juan Pérez',
- *   'https://example.com/episode1.mp3',
- *   userToken
- * );
- * if (res.ok) {
- *   alert('Podcast publicado!');
- * }
- */
-export const api_publicarPoadcast = async (serie: string, autores: string, url: string, token: string) => {
-    const res = await fetch(`${API}/api/upload_poadcast`, {
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            serie: serie,
-            autores: autores,
-            url: url
-        })
-    });
-
-    return res;
-}
-
-// ============================================================================
-// 🎵 AUDIOS / PISTAS
-// ============================================================================
-
 /**
  * Sube un archivo de audio a la plataforma
  * 
- * @async
  * @param {FormData} formData - FormData con archivo y metadatos
- *   - campo 'file': Blob de audio (webm, mp3, wav, etc)
- *   - campo 'titulo': Título del audio
- *   - opcionales: 'descripcion', 'duracion', etc
- * @param {string} token - JWT del usuario autenticado (protegido)
+ *   - campo 'audio': Blob de audio (webm, mp3, mpeg) y nombre temporal del archivo
+ *   - campo 'data': Metadata del audio
+ * @param {string} token - JWT del usuario autenticado
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: { audioId, url, titulo, autor, ... }
- *   - .ok === false (401): Token inválido
- *   - .ok === false (413): Archivo excede límite de tamaño
+ *  - 200 (.ok): Mensaje de Audio subido
+ *  - 400: Mensaje de Datos inconsistentes
+ *  - 401: Mensaje de Usuario no verificado
+ *  - 500: Mensaje de Error de servidor
  * 
- * @description
+ * @remarks
  * Endpoint: POST /api/upload (protegido)
  * - Requiere autenticación
- * - Captura archivo con multer middleware
- * - FFmpeg procesa audio si es necesario
- * - Almacena en /media (local) o Azure Blob (configurable)
+ * - Valida datos
+ * - Almacena el archivo
  * - Inserta documento en BD colección Audios
- * - Invalida caché de audios
  * 
  * @example
  * const formData = new FormData();
- * formData.append('file', audioBlob, 'mi-audio.webm');
- * formData.append('titulo', 'Mi primer podcast');
+ * formData.append('file': audioBlob, 'titulo': 'MiPrimerPodcastPorUsuario.mpeg');
+ * formData.append('titulo': 'Mi primer podcast', tipo: "cancion", autor: usuario);
  * 
  * const res = await api_uploadSounds(formData, userToken);
- * if (res.ok) {
- *   const data = await res.json();
- *   console.log('Audio subido:', data.url);
- * }
+ * return res
  */
 export const api_uploadSounds = async (formData: FormData, token: string) => {
+    //Sube la pista
     const res = await fetch(`${API}/api/upload`, {
+        //Metodo REST
         method: "POST",
+        //Credenciales del usuario
         headers: {
             'Authorization': `Bearer ${token}`
-            // Note: No incluir Content-Type, fetch lo establece automáticamente para FormData
+            // Nota: No incluir Content-Type, fetch lo establece automáticamente para FormData
         },
+        //Datos de la pista
         body: formData
     });
     return res
@@ -393,106 +73,107 @@ export const api_uploadSounds = async (formData: FormData, token: string) => {
 /**
  * Obtiene la lista de todos los audios disponibles en la plataforma
  * 
- * @async
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: { audios: [...], total, skip, limit }
- *   - Cada audio: { _id, titulo, url, autor, likes_count, fecha, ... }
+ *  - 200 (.ok): Lista de audios
+ *  - 500: Mensaje de Error de servidor
  * 
- * @description
+ * @remarks
  * Endpoint: POST /api/get_audios (público)
- * - Retorna audios paginados (default: limit=10, skip=0)
- * - Cacheado en backend (180s TTL) para performance
+ * - Retorna la lista de audios
+ * - Cacheado en backend
  * - Incluye contador de likes por audio
- * - Ordenado por fecha descendente
+ * - Ordenado en backend
  * 
  * @example
  * const res = await api_getAudios();
- * if (res.ok) {
- *   const data = await res.json();
- *   console.log(`${data.audios.length} audios cargados`);
- *   console.log(`Total en BD: ${data.total}`);
- * }
+ * const data = await res.json();
  */
 export const api_getAudios = async () => {
+    //Obtiene la lista de audios
     const res = await fetch(`${API}/api/get_audios`, {
+        //Metodo REST
         method: "POST"
     });
     return res
 }
 
 /**
- * Obtiene la lista de audios que el usuario actual ha likeado
+ * Elimina un audio subido por el usuario
  * 
- * @async
- * @param {string} token - JWT del usuario autenticado (protegido)
+ * @param {string} token - JWT del usuario autenticado
+ * @param {string} audioId - ID del audio a eliminar
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: { likeList: [...] } array de IDs de audios likeados
- *   - .ok === false (401): Token inválido
+ *  - 200 (.ok): Pista deshabilitada correctamente
+ *  - 400: Datos inconsistentes
+ *  - 401: Usuario no verificado
+ *  - 403: Usuario no habilitado para eliminar el audio
+ *  - 500: Error interno del servidor
  * 
- * @description
- * Endpoint: POST /api/get_likeList (protegido)
+ * @remarks
+ * Endpoint: DELETE /api/delete_audio (protegido)
  * - Requiere autenticación
- * - Busca en colección LikeList todos los registros del usuario
- * - Retorna lista de IDs de audios
- * - Útil para marcar UI (mostrar corazón lleno si ya likeó)
+ * - Verifica que el usuario sea el creador del audio
+ * - Deshabilita el audio
+ * - Actualiza el cache
  * 
  * @example
- * const res = await api_getLikes(userToken);
- * if (res.ok) {
- *   const data = await res.json();
- *   const likedAudioIds = data.likeList;
- *   // Marcar en UI los audios que el usuario likeó
- * }
+ * const res = await api_borrarAudio(userToken, 'audio-id-123');
+ * alert('Audio eliminado');
  */
-export const api_getLikes = async (token: string) => {
-    const res = await fetch(`${API}/api/get_likeList`, {
-        method: 'POST',
+export const api_borrarAudio = async (token: string, audioId: string) => {
+    //Deshabilita la pista de audio
+    const res = await fetch(`${API}/api/delete_audio`, {
+        //Metodo REST
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
+            //Credenciales de usuario
+            'Authorization': `Bearer ${token}`,
+            //Estructura de los datos a enviar
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            //Id del audio a eliminar
+            audioId: audioId
+        })
     });
-    return res
+    return res;
 }
 
 /**
- * Agrega o quita un like a un audio (toggle)
+ * Agrega o quita un like a un audio
  * 
- * @async
  * @param {string} token - JWT del usuario autenticado (protegido)
- * @param {string} url - URL o ID del audio (identificador único)
+ * @param {string} url - URL del audio
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: { action: 'liked'|'unliked', likes_count: number }
- *   - .ok === false (401): Token inválido
- *   - .ok === false (404): Audio no existe
+ *  - 200 (.ok): Listado de likes del usuario actualizado
+ *  - 400: Datos inconsistentes
+ *  - 401: Usuario no verificado
+ *  - 500: Error interno del servidor
  * 
- * @description
+ * @remarks
  * Endpoint: POST /api/like_control (protegido)
  * - Requiere autenticación
- * - Valida si usuario ya likeó este audio
- * - Si NO likeó: inserta registro en LikeList, incrementa likes_count
- * - Si YA likeó: elimina registro, decrementa likes_count
- * - Invalida caché de audios
- * - Respuesta incluye acción realizada y likes_count actualizado
+ * - Valida si usuario ya dio like al video
+ *   - Si no dio like: Agrega el registro a la base de datos
+ *   - Si ya dio like: Elimina el registro de la base de datos
+ * - Devuelve el listado actualizado de likes
  * 
  * @example
- * const res = await api_likeControl(userToken, 'audio-id-123');
- * if (res.ok) {
- *   const data = await res.json();
- *   if (data.action === 'liked') {
- *     console.log('❤️ Likeado! Total likes:', data.likes_count);
- *   } else {
- *     console.log('💔 Like removido. Total likes:', data.likes_count);
- *   }
- * }
+ * const res = await api_likeControl(userToken, '/audios/audio-id-123.mp3');
+ * return res //Listado nuevo
  */
 export const api_likeControl = async (token: string, url: string) => {
+    //Registra o elimina su like
     const res = await fetch(`${API}/api/like_control`, {
+        //Metodo REST
         method: 'POST',
         headers: {
+            //Estructura de los datos a enviar
             'Content-Type': 'application/json',
+            //Credenciales del usuario
             'Authorization': `Bearer ${token}`
         },
+        //Url de la pista
         body: JSON.stringify({
             url: url
         })
@@ -501,86 +182,309 @@ export const api_likeControl = async (token: string, url: string) => {
 }
 
 /**
- * Elimina un audio subido por el usuario
+ * Obtiene la lista de audios que el usuario actual ha likeado
  * 
- * @async
  * @param {string} token - JWT del usuario autenticado (protegido)
- * @param {string} audioId - ID del audio a eliminar
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: Audio eliminado exitosamente
- *   - .ok === false (401): Token inválido
- *   - .ok === false (403): No eres el dueño del audio
- *   - .ok === false (404): Audio no existe
+ *  - 200 (.ok): Listado de likes del usuario
+ *  - 401: Usuario no verificado
+ *  - 500: Error interno del servidor
  * 
- * @description
- * Endpoint: DELETE /api/delete_audio (protegido)
+ * @remarks
+ * Endpoint: POST /api/get_likeList (protegido)
  * - Requiere autenticación
- * - Verifica que user_id == audio.autor (solo dueño puede eliminar)
- * - Elimina archivo de almacenamiento (/media o Azure)
- * - Elimina documento de BD
- * - Elimina todos los likes asociados
- * - Invalida caché
+ * - Retorna el listado de likes del usuario
+ * - Obtiene la lista al cargar la interfaz
  * 
  * @example
- * const res = await api_borrarAudio(userToken, 'audio-id-123');
- * if (res.ok) {
- *   alert('Audio eliminado');
- *   // Refresca lista
- * } else if (res.status === 403) {
- *   alert('No puedes eliminar audios ajenos');
- * }
+ * const res = await api_getLikes(userToken);
+ * return res
  */
-export const api_borrarAudio = async (token: string, audioId: string) => {
-    const res = await fetch(`${API}/api/delete_audio`, {
-        method: "POST",
+export const api_getLikes = async (token: string) => {
+    //Obtiene la lista de likes del usuario
+    const res = await fetch(`${API}/api/get_likeList`, {
+        //Metodo REST
+        method: 'POST',
         headers: {
-            'Authorization': `Bearer ${token}`,
+            //Credenciales del usuario
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return res
+}
+
+/**
+ * Reenvía el código de verificación por email
+ * 
+ * @param {string} id - Código del usuario
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Código reenviado
+ *  - 400: Datos invalidos
+ *  - 401: Usuario no verificado
+ *  - 500: Error interno del servidor
+ * 
+ * @remarks
+ * Endpoint: POST /api/recode (público)
+ * - Valida los datos del usuario
+ * - Valida la ultima solicitud de código
+ * - Genera un nuevo código de 6 dígitos
+ * - Envía nuevo código por email vía Nodemailer (Gmail SMTP)
+ * 
+ * @example
+ * const res = await api_codigo('0000000000');
+ * return res
+ */
+export const api_codigo = async (id: string) => {
+    //Solicitud de código
+    const res = await fetch(`${API}/api/recode`, {
+        //Metodo REST
+        method: 'POST',
+        headers: {
+            //Estructura de los datos
             'Content-Type': 'application/json'
         },
+        //Id del usuario
         body: JSON.stringify({
-            audioId: audioId
+            id: id
         })
     });
     return res;
 }
 
-// ============================================================================
-// 📱 POSTS / FEED SOCIAL
-// ============================================================================
-
 /**
- * Obtiene posts del feed social con paginación
+ * Verifica el código de verificación
  * 
- * @async
- * @param {number} page - Número de página (página 1 = registros 0-9, página 2 = 10-19, etc)
+ * @param {string} id - Id del usuario
+ * @param {string} codigo - Código de 6 dígitos recibido por email
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: { posts: [...], total, page, hasMore }
- *   - Cada post: { _id, contenido, link, autor, likes, fecha, ... }
+ *  - 200 (.ok): Usuario verificado
+ *  - 400: Datos invalidos
+ *  - 500: Error interno del servidor
  * 
- * @description
- * Endpoint: POST /api/get_posts (público)
- * - Paginación: limit=10, skip=(page-1)*10
- * - Cacheado en backend (60s TTL)
- * - Ordenado por fecha descendente (más recientes primero)
- * - Incluye información del autor (nombre, avatar)
- * - hasMore: boolean para saber si hay más posts
+ * @remarks
+ * Endpoint: POST /api/verificar
+ * - Valida que el código coincida con el guardado en BD
+ * - Verifica que el código no haya expirado
+ *   - Si es correcto: marca usuario como verificado
  * 
  * @example
- * const res = await api_getPosts(1); // Primera página
- * if (res.ok) {
- *   const data = await res.json();
- *   console.log(`${data.posts.length} posts en página 1`);
- *   if (data.hasMore) {
- *     // Mostrar botón "Cargar más"
- *   }
- * }
+ * const res = await api_validar('0000000000', '123456');
+ * return res
  */
-export const api_getPosts = async (page: number) => {
-    const res = await fetch(`${API}/api/get_posts`, {
+export const api_validar = async (id: string, codigo: string) => {
+    //Verifica el código del usuario
+    const res = await fetch(`${API}/api/verificar`, {
+        //Metodo REST
         method: 'POST',
+        //Estructura de los datos
         headers: {
             'Content-Type': 'application/json'
         },
+        body: JSON.stringify({
+            //Id del usuario
+            id: id,
+            //Código de verificación
+            codigo: codigo
+        })
+    });
+    return res;
+}
+
+/**
+ * Publica o actualiza una serie de podcast
+ * 
+ * @param {string} serie - Nombre de la serie de podcast
+ * @param {string} autores - Autor(es) del podcast
+ * @param {string} url - URL del episodio
+ * @param {string} token - JWT del usuario autenticado
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Usuario verificado
+ *  - 400: Datos invalidos
+ *  - 401: Usuario no verificado
+ *  - 403: Usuario no coincide con el creador
+ *  - 500: Error interno del servidor
+ * 
+ * @remarks
+ * Endpoint: POST /api/upload_poadcast (protegido)
+ * - Requiere autenticación (JWT)
+ * - Crea nueva serie o actualiza existente
+ * 
+ * @example
+ * const res = await api_publicarPoadcast(
+ *   serie: 'Mi Podcast',
+ *   autores: 'Usuario',
+ *   url: 'https://youtube.com/episodio1',
+ *   userToken
+ * );
+ * return res
+ */
+export const api_publicarPoadcast = async (serie: string, autores: string, url: string, token: string) => {
+    //Sube el poadcast
+    const res = await fetch(`${API}/api/upload_poadcast`, {
+        //Metodo REST
+        method: "POST",
+        headers: {
+            //Credenciales del usuario
+            Authorization: `Bearer ${token}`,
+            //Estructura de los datos
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            //Nombre del poadcast
+            serie: serie,
+            //Autores del poadcast
+            autores: autores,
+            //Url del capitulo
+            url: url
+        })
+    });
+
+    return res;
+}
+
+/**
+ * Obtiene todas las series de podcasts
+ * 
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Listado de poadcasts
+ *  - 500: Error interno del servidor
+ * 
+ * @remarks
+ * Endpoint: POST /api/get_poadcast (público)
+ * - Retorna todas las series de podcasts de la plataforma
+ * 
+ * @example
+ * const podcasts = await api_poadcasts();
+ * return res
+ */
+export const api_poadcasts = async () => {
+    //Consulta de poadcasts
+    const res = await fetch(`${API}/api/get_poadcast`, {
+        //Metodo REST
+        method: "POST"
+    });
+
+    return res;
+}
+
+/**
+ * Publica un nuevo post en el feed social
+ * 
+ * @param {string} mensaje - Contenido del post (máx 500 caracteres)
+ * @param {string} link - URL opcional (Link a youtube o url de una imagen)
+ * @param {string} token - JWT del usuario autenticado
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Post publicado
+ *  - 400: Datos invalidos
+ *  - 401: Usuario no verificado
+ *  - 500: Error interno del servidor
+ * 
+ * @remarks
+ * Endpoint: POST /api/upload_post (protegido)
+ * - Requiere autenticación
+ * - Valida que exita un mensaje o una url
+ * - Inserta el post en la Base de datos
+ * 
+ * @example
+ * const res = await api_uploadPost(
+ *   'Escucha mi último podcast!',
+ *   'https://youtube.com/video',
+ *   userToken
+ * );
+ * return res
+ */
+export const api_uploadPost = async (mensaje: string, link: string, token: string) => {
+    //Publica el post
+    const res = await fetch(`${API}/api/upload_post`, {
+        //Metodo REST
+        method: "POST",
+        headers: {
+            //Credenciales del usuario
+            'Authorization': `Bearer ${token}`,
+            //Estructura de los datos
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            //Mensaje del post
+            mensaje: mensaje,
+            //Url del post
+            link: link
+        })
+    });
+    return res;
+}
+
+/**
+ * Elimina un post del feed (Solo el dueño del post)
+ * 
+ * @param {string} token - JWT del usuario autenticado
+ * @param {string} postId - ID del post a eliminar
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Post eliminado
+ *  - 400: Datos invalidos
+ *  - 401: Usuario no verificado
+ *  - 403: Usuario no coincide con el creador
+ *  - 500: Error interno del servidor
+ * @remarks
+ * Endpoint: DELETE /api/delete_post (protegido)
+ * - Requiere autenticación
+ * - Verifica que el usuario sea el mismo creador del post
+ * - Inhabilita el post
+ * 
+ * @example
+ * const res = await api_borrarPost(userToken, 'post123af1');
+ * return res
+ */
+export const api_borrarPost = async (token: string, postId: string) => {
+    //Borra el post
+    const res = await fetch(`${API}/api/delete_post`, {
+        //Metodo REST
+        method: "POST",
+        headers: {
+            //Credenciales del usuario
+            'Authorization': `Bearer ${token}`,
+            //Estructura de los datos
+            'Content-Type': 'application/json'
+        },
+        //Id del post
+        body: JSON.stringify({
+            postId: postId
+        })
+    });
+    return res;
+}
+
+/**
+ * Obtiene posts segun su paginación
+ * 
+ * @param {string} token - JWT del usuario autenticado
+ * @param {number} page - Número de página (página 1 = registros 0-9)
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Lista de posts
+ *  - 400: Datos invalidos
+ *  - 401: Usuario no verificado
+ *  - 500: Error interno del servidor
+ * 
+ * @remarks
+ * Endpoint: POST /api/get_posts (privado)
+ * Obtiene los posts de la pagina (Definida por un salto y limite)
+ * 
+ * @example
+ * const res = await api_getPosts(1); // Primera página
+ * return res
+ */
+export const api_getPosts = async (page: number, token: string) => {
+    //Obtiene los posts de una pagina
+    const res = await fetch(`${API}/api/get_posts`, {
+        //Metodo REST
+        method: 'POST',
+        headers: {
+            //Credenciales del usuario
+            'Authorization': `Bearer ${token}`,
+            //Estructura de los datos
+            'Content-Type': 'application/json'
+        },
+        //Pagina de posts
         body: JSON.stringify({
             page: page
         })
@@ -589,91 +493,148 @@ export const api_getPosts = async (page: number) => {
 }
 
 /**
- * Publica un nuevo post en el feed social
+ * Registra un nuevo usuario en la plataforma
  * 
- * @async
- * @param {string} mensaje - Contenido del post (máx ~500 caracteres)
- * @param {string} link - URL opcional (ej: link a YouTube, Spotify, etc)
- * @param {string} token - JWT del usuario autenticado (protegido)
+ * @param {string} user - Nombre de usuario (username)
+ * @param {string} password - Contraseña
+ * @param {string} mail - Email del usuario (Correo institucional)
+ * @param {string} id - Código institucional
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: { postId, post }
- *   - .ok === false (401): Token inválido
- *   - .ok === false (400): Mensaje vacío
+ *  - 200 (.ok): Usuario registrado
+ *  - 400: Datos invalidos
+ *  - 403: Usuario o correo ya registrados
+ *  - 500: Error interno del servidor
  * 
- * @description
- * Endpoint: POST /api/upload_post (protegido)
- * - Requiere autenticación
- * - Valida que el mensaje no esté vacío
- * - Inserta documento en colección Posts
- * - Campos: contenido, link, autor (user_id), fecha (now), likes: 0
- * - Invalida caché de posts
- * - Respuesta incluye ID del post creado
+ * @remarks
+ * Endpoint: POST /api/registro (publico)
+ * - Valida que email y username sean únicos
+ * - Crea el usuario (Sin verificar)
+ * - Genera código de verificación de 6 dígitos
+ * - Envía código por email vía Nodemailer
  * 
  * @example
- * const res = await api_uploadPost(
- *   'Escucha mi último podcast! 🎙️',
- *   'https://youtube.com/watch?v=...',
- *   userToken
- * );
- * if (res.ok) {
- *   const data = await res.json();
- *   console.log('Post publicado:', data.postId);
- *   // Agregar post al feed (optimistic update)
- * }
+ * const res = await api_registrar('usuario', 'contraseña', 'usuario@udistrital', '0000000000');
+ * return res
  */
-export const api_uploadPost = async (mensaje: string, link: string, token: string) => {
-    const res = await fetch(`${API}/api/upload_post`, {
-        method: "POST",
+export const api_registrar = async (user: string, password: string, mail: string, id: string) => {
+    //Registra el usuario
+    const res = await fetch(`${API}/api/registro`, {
+        //Metodo REST
+        method: 'POST',
+        //Estructura de los datos
         headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            mensaje: mensaje,
-            link: link
+            //Nombre del usuario
+            user: user,
+            //Contraseña
+            password: password,
+            //Correo institucional
+            email: mail,
+            //Código institucional
+            id: id
         })
     });
     return res;
 }
 
 /**
- * Elimina un post del feed social (solo si es el dueño)
+ * Inicia sesión con código y contraseña
  * 
- * @async
- * @param {string} token - JWT del usuario autenticado (protegido)
- * @param {string} postId - ID del post a eliminar
+ * @param {string} user - Código institucional
+ * @param {string} password - Contraseña
  * @returns {Promise<Response>} Response de fetch
- *   - .ok === true: Post eliminado exitosamente
- *   - .ok === false (401): Token inválido
- *   - .ok === false (403): No eres el dueño del post
- *   - .ok === false (404): Post no existe
+ *  - 200 (.ok): Inicio de sesión
+ *  - 400: Datos invalidos
+ *  - 401: Usuario no verificado
+ *  - 500: Error interno del servidor
  * 
- * @description
- * Endpoint: DELETE /api/delete_post (protegido)
- * - Requiere autenticación
- * - Verifica que user_id == post.autor (solo dueño puede eliminar)
- * - Elimina documento de colección Posts
- * - Invalida caché
+ * @remarks
+ * Endpoint: POST /api/login (publico)
+ * - Valida credenciales contra base de datos
+ * - Si el usuario esta verificado, genera su JWT
+ * - Si el usuario no esta verificado, le pide el código de verificación
  * 
  * @example
- * const res = await api_borrarPost(userToken, 'post-id-123');
- * if (res.ok) {
- *   alert('Post eliminado');
- *   // Refresca feed
- * } else if (res.status === 403) {
- *   alert('No puedes eliminar posts ajenos');
- * }
+ * const res = await api_login('0000000000', 'Contraseña');
+ * return res
  */
-export const api_borrarPost = async (token: string, postId: string) => {
-    const res = await fetch(`${API}/api/delete_post`, {
-        method: "POST",
+export const api_login = async (user: string, password: string) => {
+    //Verifica el inicio de sesión del usuario
+    const res = await fetch(`${API}/api/login`, {
+        //Metodo REST
+        method: 'POST',
+        //Estructura de los datos
         headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            postId: postId
+            //Código universitario
+            id: user,
+            //Contraseña
+            password: password
         })
     });
+    return res
+}
+
+/**
+ * Valida que un JWT sea válido con el backend
+ * 
+ * @param {string} token - JWT a validar
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Token válido
+ *  - 401: Token inválido
+ *  - 500: Error interno del servidor
+ * 
+ * @remarks
+ * Endpoint: GET /api/verify (protegido)
+ * - Valida el estado del token en el BackEnd
+ * 
+ * @example
+ * const res = await api_checkAuth(storedToken);
+ * return res
+ */
+export const api_checkAuth = async (token: string) => {
+    //Verificación del token
+    const res = await fetch(`${API}/api/verify`, {
+        //Credenciales del usuario
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+    return res
+}
+
+/**
+ * Renueva un JWT que está a punto de expirar
+ * 
+ * @param {string|null} token - JWT actual a renovar
+ * @returns {Promise<Response>} Response de fetch
+ *  - 200 (.ok): Nuevo token generado
+ *  - 401: Usuario no verificado
+ *  - 500: Error interno del servidor
+ * 
+ * @remarks
+ * Endpoint: POST /api/retoken (protegido)
+ * - Envia el token actual para verificar su estado
+ * - Genera un nuevo token
+ * 
+ * @example
+ * const res = await api_reloadAuth(currentToken);
+ * return res
+ */
+export const api_reloadAuth = async (token: string | null) => {
+    //Genera un nuevo token
+    const res = await fetch(`${API}/api/retoken`, {
+        //Metodo REST
+        method: 'POST',
+        headers: {
+            //Credenciales del usuario
+            Authorization: `Bearer ${token}`
+        }
+    })
     return res;
+
 }

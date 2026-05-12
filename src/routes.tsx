@@ -8,6 +8,14 @@ import { SwaggerDocs } from "./components/swaggerDocs";
 import { PerfilHome } from "./routes/perfil_home";
 import { ListaHome } from "./routes/lista_home";
 
+/**
+ * Rutas del SPA.
+ * 
+ * @remarks
+ * - Maneja el listado de direcciones del SPA
+ * 
+ * @returns {JSX.Element} Componente de las rutas del SPA
+ */
 export const router = createBrowserRouter([
   {
     path: "/",

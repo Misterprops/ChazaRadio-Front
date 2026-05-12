@@ -2,13 +2,20 @@ import { Header } from "../elements/header";
 import { Footer } from "../elements/footer";
 import { Register } from "../components/register";
 
-// renders after the loader is done
+/**
+ * Vista base del registro
+ * 
+ * @returns {JSX.Element} Componente visual de la base del registro
+ */
 export default function RegAccess() {
-  //Formacion de acceso - Header envia por props los elementos de navegacion, El cuerpo del documento y el footer
+  //Interfaz de la base del registro
   return (
     <div className="min-h-screen flex flex-col">
+      {/*Header*/}
       <Header nav={[["/Login", "Login"], ["/Emisora", "Emisora"]]} />
+      {/*Contenido del registro*/}
       <Register />
+      {/*Pie de pagina*/}
       <Footer />
     </div>
   );

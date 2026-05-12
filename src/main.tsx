@@ -1,14 +1,16 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { router } from "./routes";   // <-- IMPORTA TU ROUTER
+import { router } from "./routes";
 import "./index.css";
-import { AuthProvider } from "./components/authContext";
 
+/**
+ * Base del SPA.
+ * 
+ * @remarks
+ * - Aqui se maneja el RouterProvider para el manejo del SPA
+ * 
+ * @returns {JSX.Element} Componente visual de la base del SPA
+ */
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  </React.StrictMode>
+  <RouterProvider router={router} />
 );
